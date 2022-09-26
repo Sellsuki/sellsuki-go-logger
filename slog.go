@@ -165,6 +165,67 @@ func WithHTTPResponse(
 	}
 }
 
+func WithKafkaMessage(
+	topic string,
+	partition int64,
+	offset int64,
+	headers map[string]string,
+	key string,
+	payload string,
+	timestamp time.Time,
+) KafkaMessage {
+	return KafkaMessage{
+		Topic:     topic,
+		Partition: partition,
+		Offset:    offset,
+		Headers:   headers,
+		Key:       key,
+		Payload:   payload,
+		Timestamp: timestamp,
+	}
+}
+
+func WithKafkaResult(
+	duration float64,
+	error Error,
+) KafkaResult {
+	return KafkaResult{
+		Duration: duration,
+		Error:    error,
+	}
+}
+
+func (s SukiLogger) RequestKafka(
+	message string,
+	kafkaMessage KafkaMessage,
+	kafkaResult KafkaResult,
+	tracing ...TraceInfo,
+) {
+	appName := zap.String("app_name", s.config.AppName)
+	version := zap.String("version", s.config.Version)
+	logType := zap.String("log_type", "handler.kafka")
+	data := make(map[string]interface{})
+
+	if len(tracing) > 0 {
+		data["tracing"] = TraceInfo{
+			TraceID: tracing[0].TraceID,
+			SpanID:  tracing[0].SpanID,
+		}
+	}
+
+	data["kafka_message"] = kafkaMessage
+	data["kafka_result"] = kafkaResult
+	dataField := zap.Any("data", data)
+
+	s.zapInstance.Info(
+		message,
+		appName,
+		version,
+		logType,
+		dataField,
+	)
+}
+
 func (s SukiLogger) RequestHTTP(
 	message string,
 	request HTTPRequestInfo,
