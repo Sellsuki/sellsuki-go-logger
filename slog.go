@@ -6,19 +6,21 @@ import (
 	"time"
 )
 
+type LogLevel int8
+
 const (
-	LevelDebug = zap.DebugLevel
-	LevelInfo  = zap.InfoLevel
-	LevelWarn  = zap.WarnLevel
-	LevelError = zap.ErrorLevel
-	LevelPanic = zap.PanicLevel
-	LevelFatal = zap.FatalLevel
+	LevelDebug LogLevel = -1
+	LevelInfo  LogLevel = 0
+	LevelWarn  LogLevel = 1
+	LevelError LogLevel = 2
+	LevelPanic LogLevel = 4
+	LevelFatal LogLevel = 5
 )
 
 var sukiLogger *SukiLogger
 
 type Config struct {
-	LogLevel int8
+	LogLevel LogLevel
 	AppName  string
 	Version  string
 }
