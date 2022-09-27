@@ -133,14 +133,28 @@ func WithHTTPRequest(
 	query map[string]string,
 	body string,
 ) HTTPRequestInfo {
+	h := headers
+	p := params
+	q := query
+	if h == nil {
+		h = map[string]string{}
+	}
+
+	if p == nil {
+		p = map[string]string{}
+	}
+
+	if q == nil {
+		q = map[string]string{}
+	}
 
 	return HTTPRequestInfo{
 		Method:   method,
 		Path:     path,
 		RemoteIP: remoteIP,
-		Headers:  headers,
-		Params:   params,
-		Query:    query,
+		Headers:  h,
+		Params:   p,
+		Query:    q,
 		Body:     body,
 	}
 }
@@ -176,11 +190,17 @@ func WithKafkaMessage(
 	payload string,
 	timestamp time.Time,
 ) KafkaMessage {
+
+	h := headers
+	if h == nil {
+		h = map[string]string{}
+	}
+
 	return KafkaMessage{
 		Topic:     topic,
 		Partition: partition,
 		Offset:    offset,
-		Headers:   headers,
+		Headers:   h,
 		Key:       key,
 		Payload:   payload,
 		Timestamp: timestamp,
