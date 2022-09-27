@@ -380,7 +380,15 @@ func (s *SukiLogger) Configure(c Config) error {
 
 func L() *SukiLogger {
 	if sukiLogger == nil {
-		logger, _ := zap.NewProduction()
+		config := zap.NewProductionConfig()
+		config.EncoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
+		config.EncoderConfig.MessageKey = "message"
+		config.EncoderConfig.TimeKey = "timestamp"
+		config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		config.Level = zap.NewAtomicLevelAt(zapcore.InfoLevel)
+
+		logger, _ := config.Build(zap.AddCallerSkip(1))
+
 		sukiLogger = &SukiLogger{zapInstance: logger}
 	}
 	return sukiLogger
