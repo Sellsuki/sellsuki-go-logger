@@ -51,13 +51,13 @@ type HTTPRequestInfo struct {
 }
 
 type HTTPResponseInfo struct {
-	Status   int64   `json:"status"`
-	Duration float64 `json:"duration"`
-	Body     string  `json:"body"`
-	Error    Error   `json:"error"`
+	Status   int64     `json:"status"`
+	Duration float64   `json:"duration"`
+	Body     string    `json:"body"`
+	Error    ErrorInfo `json:"error"`
 }
 
-type Error struct {
+type ErrorInfo struct {
 	Name       string `json:"name"`
 	Caller     string `json:"caller"`
 	StackTrace string `json:"stack_trace"`
@@ -74,8 +74,8 @@ type KafkaMessage struct {
 }
 
 type KafkaResult struct {
-	Duration float64 `json:"duration"`
-	Error    Error   `json:"error"`
+	Duration float64   `json:"duration"`
+	Error    ErrorInfo `json:"error"`
 }
 
 const (
@@ -105,6 +105,10 @@ func Any(key string, value interface{}) LogField {
 		Key:   key,
 		Value: value,
 	}
+}
+
+func Error(err error) LogField {
+	return Any("error", err.Error())
 }
 
 func WithTracing(traceID string, spanID string) TraceInfo {
@@ -159,8 +163,8 @@ func WithHTTPRequest(
 	}
 }
 
-func WithError(name string, caller string, stacktrace string) Error {
-	return Error{
+func WithError(name string, caller string, stacktrace string) ErrorInfo {
+	return ErrorInfo{
 		Name:       name,
 		Caller:     caller,
 		StackTrace: stacktrace,
@@ -171,7 +175,7 @@ func WithHTTPResponse(
 	status int64,
 	duration float64,
 	body string,
-	err Error,
+	err ErrorInfo,
 ) HTTPResponseInfo {
 	return HTTPResponseInfo{
 		Status:   status,
@@ -209,7 +213,7 @@ func WithKafkaMessage(
 
 func WithKafkaResult(
 	duration float64,
-	error Error,
+	error ErrorInfo,
 ) KafkaResult {
 	return KafkaResult{
 		Duration: duration,
