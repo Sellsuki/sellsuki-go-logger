@@ -316,14 +316,21 @@ func (s SukiLogger) appLogBuilder(args ...interface{}) []zap.Field {
 	logType := zap.String("log_type", "application")
 	data := make(map[string]interface{})
 
+	appKey := s.config.AppName
+	if len(appKey) <= 0 {
+		appKey = "payload"
+	}
+
+	appData := make(map[string]interface{})
+
 	for i, _ := range args {
 		if val, ok := args[i].(TraceInfo); ok {
 			data["tracing"] = val
 		} else if val, ok := args[i].(LogField); ok {
-			data[val.Key] = val.Value
+			appData[val.Key] = val.Value
 		}
 	}
-
+	data[appKey] = appData
 	dataField := zap.Any("data", data)
 
 	return []zap.Field{
