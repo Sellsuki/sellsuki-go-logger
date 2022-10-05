@@ -21,11 +21,13 @@ go get github.com/Sellsuki/sellsuki-go-logger/@v1.0.0
 import "github.com/Sellsuki/sellsuki-go-logger"
 
 // Initialize Logger
-slog.L().Configure(slog.Config{
-    AppName:  "sellsuki-logger",
-    Version:  "1.0.0",
-    LogLevel: slog.LevelDebug,
-})
+config := slog.NewProductionConfig()
+config.LogLevel = slog.LevelInfo
+config.AppName = "sellsuki-logger"
+config.Version = "1.0.0"
+config.MaxBodySize = 1048576
+
+slog.L().Configure(config)
 
 // Simple Info Log
 slog.L().Info(
@@ -41,11 +43,13 @@ slog.L().Info(
 import "github.com/Sellsuki/sellsuki-go-logger"
 
 // Initialize Logger
-slog.L().Configure(slog.Config{
-    AppName:  "sellsuki-logger",
-    Version:  "1.0.0",
-    LogLevel: slog.LevelDebug,
-})
+config := slog.NewProductionConfig()
+config.LogLevel = slog.LevelInfo
+config.AppName = "sellsuki-logger"
+config.Version = "1.0.0"
+config.MaxBodySize = 1048576
+
+slog.L().Configure(config)
 
 // HTTP Request Log
 slog.L().RequestHTTP(
@@ -117,11 +121,13 @@ slog.L().RequestKafka(
 import "github.com/Sellsuki/sellsuki-go-logger"
 
 // Initialize Logger
-slog.L().Configure(slog.Config{
-    AppName:  "sellsuki-logger",
-    Version:  "1.0.0",
-    LogLevel: slog.LevelDebug,
-})
+config := slog.NewProductionConfig()
+config.LogLevel = slog.LevelInfo
+config.AppName = "sellsuki-logger"
+config.Version = "1.0.0"
+config.MaxBodySize = 1048576
+
+slog.L().Configure(config)
 
 // Event Log
 slog.L().Event(
@@ -146,11 +152,13 @@ slog.L().Event(
 import "github.com/Sellsuki/sellsuki-go-logger"
 
 // Initialize Logger
-slog.L().Configure(slog.Config{
-    AppName:  "sellsuki-logger",
-    Version:  "1.0.0",
-    LogLevel: slog.LevelDebug,
-})
+config := slog.NewProductionConfig()
+config.LogLevel = slog.LevelInfo
+config.AppName = "sellsuki-logger"
+config.Version = "1.0.0"
+config.MaxBodySize = 1048576
+
+slog.L().Configure(config)
 
 
 // Debug Log

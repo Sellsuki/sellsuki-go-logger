@@ -329,7 +329,7 @@ func (s SukiLogger) appLogBuilder(args ...interface{}) []zap.Field {
 
 	appKey := s.config.AppName
 	if len(appKey) <= 0 {
-		appKey = "payload"
+		appKey = "application"
 	}
 
 	appData := make(map[string]interface{})
@@ -425,6 +425,7 @@ func (s *SukiLogger) Configure(c Config) error {
 	defer logger.Sync()
 
 	s.zapInstance = logger
+
 	s.config = c
 	return nil
 }
@@ -445,28 +446,14 @@ func L() *SukiLogger {
 	return sukiLogger
 }
 
-func LogConfig(
-	level LogLevel,
-	appName string,
-	version string,
-	maxBodySize int,
-) Config {
+func NewProductionConfig() Config {
 
 	config := Config{
-		LogLevel:    level,
-		AppName:     appName,
-		Version:     version,
-		MaxBodySize: maxBodySize,
-	}
-
-	if len(config.AppName) <= 0 {
-		config.AppName = "application" // Default application
-	}
-
-	if maxBodySize == 0 {
-		config.MaxBodySize = 1048576 // Default 1 MB
+		LogLevel:    LevelInfo,
+		AppName:     "application",
+		Version:     "1.0.0",
+		MaxBodySize: 1048576,
 	}
 
 	return config
-
 }
