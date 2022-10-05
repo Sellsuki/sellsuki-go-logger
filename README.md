@@ -15,6 +15,16 @@ Or install specific version
 go get github.com/Sellsuki/sellsuki-go-logger/@v1.0.0
 ```
 
+## Configuration
+This table show the default value of configuration when using NewProductionConfig()
+
+Config | Description                                                 | Default
+--- |-------------------------------------------------------------| ---
+`LogLevel` | Log minimum level that will output                          | LevelInfo
+`AppName` | Application name                                            | "application"
+`Version` | Version of the application                                  | ""
+`MaxBodySize` | Max size of request body to output in bytes (0 = Unlimited) |  1048576
+
 ## Basic Usage
 
 ```go
