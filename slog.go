@@ -60,7 +60,6 @@ type HTTPResponseInfo struct {
 
 type ErrorInfo struct {
 	Name       string `json:"name"`
-	Caller     string `json:"caller"`
 	StackTrace string `json:"stack_trace"`
 }
 
@@ -164,10 +163,9 @@ func WithHTTPRequest(
 	}
 }
 
-func WithError(name string, caller string, stacktrace string) ErrorInfo {
+func WithError(name string, stacktrace string) ErrorInfo {
 	return ErrorInfo{
 		Name:       name,
-		Caller:     caller,
 		StackTrace: stacktrace,
 	}
 }
@@ -176,13 +174,17 @@ func WithHTTPResponse(
 	status int64,
 	duration float64,
 	body string,
-	err ErrorInfo,
+	error ...ErrorInfo,
 ) HTTPResponseInfo {
+	var e ErrorInfo
+	if len(error) > 0 {
+		e = error[0]
+	}
 	return HTTPResponseInfo{
 		Status:   status,
 		Duration: duration,
 		Body:     body,
-		Error:    err,
+		Error:    e,
 	}
 }
 
@@ -214,11 +216,15 @@ func WithKafkaMessage(
 
 func WithKafkaResult(
 	duration float64,
-	error ErrorInfo,
+	error ...ErrorInfo,
 ) KafkaResult {
+	var e ErrorInfo
+	if len(error) > 0 {
+		e = error[0]
+	}
 	return KafkaResult{
 		Duration: duration,
-		Error:    error,
+		Error:    e,
 	}
 }
 
@@ -329,7 +335,7 @@ func (s SukiLogger) appLogBuilder(args ...interface{}) []zap.Field {
 
 	appKey := s.config.AppName
 	if len(appKey) <= 0 {
-		appKey = "application"
+		appKey = "payload"
 	}
 
 	appData := make(map[string]interface{})
@@ -425,7 +431,6 @@ func (s *SukiLogger) Configure(c Config) error {
 	defer logger.Sync()
 
 	s.zapInstance = logger
-
 	s.config = c
 	return nil
 }
