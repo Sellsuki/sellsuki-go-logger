@@ -20,9 +20,10 @@ const (
 var sukiLogger *SukiLogger
 
 type Config struct {
-	LogLevel LogLevel
-	AppName  string
-	Version  string
+	LogLevel    LogLevel
+	AppName     string
+	Version     string
+	MaxBodySize int
 }
 
 type SukiLogger struct {
@@ -270,6 +271,16 @@ func (s SukiLogger) RequestHTTP(
 		}
 	}
 
+	if s.config.MaxBodySize > 0 {
+		if len(request.Body) > s.config.MaxBodySize {
+			request.Body = "body is too large"
+		}
+
+		if len(response.Body) > s.config.MaxBodySize {
+			response.Body = "body is too large"
+		}
+	}
+
 	data["http_request"] = request
 	data["http_response"] = response
 	dataField := zap.Any("data", data)
@@ -432,4 +443,30 @@ func L() *SukiLogger {
 		sukiLogger = &SukiLogger{zapInstance: logger}
 	}
 	return sukiLogger
+}
+
+func LogConfig(
+	level LogLevel,
+	appName string,
+	version string,
+	maxBodySize int,
+) Config {
+
+	config := Config{
+		LogLevel:    level,
+		AppName:     appName,
+		Version:     version,
+		MaxBodySize: maxBodySize,
+	}
+
+	if len(config.AppName) <= 0 {
+		config.AppName = "application" // Default application
+	}
+
+	if maxBodySize == 0 {
+		config.MaxBodySize = 1048576 // Default 1 MB
+	}
+
+	return config
+
 }
