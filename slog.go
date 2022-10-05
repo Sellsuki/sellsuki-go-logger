@@ -163,10 +163,19 @@ func WithHTTPRequest(
 	}
 }
 
-func WithError(name string, stacktrace string) ErrorInfo {
+func WithError(name string, stacktrace ...string) ErrorInfo {
+
+	var trace string
+
+	if len(stacktrace) == 1 {
+		trace = stacktrace[0]
+	} else if len(stacktrace) > 1 {
+		trace = stacktrace[1]
+	}
+
 	return ErrorInfo{
 		Name:       name,
-		StackTrace: stacktrace,
+		StackTrace: trace,
 	}
 }
 
