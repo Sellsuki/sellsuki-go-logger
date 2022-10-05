@@ -451,7 +451,7 @@ func L() *SukiLogger {
 		config.EncoderConfig.MessageKey = "message"
 		config.EncoderConfig.TimeKey = "timestamp"
 		config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-		config.Level = zap.NewAtomicLevelAt(zapcore.InfoLevel)
+		config.Level = zap.NewAtomicLevelAt(zapcore.FatalLevel)
 
 		logger, _ := config.Build(zap.AddCallerSkip(1))
 
