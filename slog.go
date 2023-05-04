@@ -1,6 +1,7 @@
 package slog
 
 import (
+	"encoding/json"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"time"
@@ -36,9 +37,21 @@ type LogField struct {
 	Value interface{}
 }
 
+type AlertLevel int
+
+var (
+	LevelNone  AlertLevel = 0
+	LevelAlert AlertLevel = 1
+)
+
+type LogOption struct {
+	Alert AlertLevel
+}
+
 type TraceInfo struct {
-	TraceID string `json:"trace_id"`
-	SpanID  string `json:"span_id"`
+	TraceID   string `json:"trace_id"`
+	SpanID    string `json:"span_id"`
+	RequestID string `json:"request_id"`
 }
 
 type HTTPRequestInfo struct {
@@ -108,23 +121,49 @@ func Any(key string, value interface{}) LogField {
 }
 
 func Error(err error) LogField {
-	return Any("error", err.Error())
+	if err != nil {
+		return Any("error", err.Error())
+	}
+	return Any("error", "")
 }
 
-func WithTracing(traceID string, spanID string) TraceInfo {
+func WithTracing(traceID string, spanID string, requestID ...string) TraceInfo {
+	reqID := ""
+	if len(requestID) > 0 {
+		reqID = requestID[0]
+	}
+
 	return TraceInfo{
-		TraceID: traceID,
-		SpanID:  spanID,
+		TraceID:   traceID,
+		SpanID:    spanID,
+		RequestID: reqID,
 	}
 }
 
-func WithEvent(entity string, action EventAction, result EventResult, data string, refID string) EventLog {
+func WithOption(opts LogOption) LogOption {
+	return opts
+}
+
+func WithEvent(entity string, action EventAction, result EventResult, data interface{}, refID string) EventLog {
+	payload := ""
+
+	if data == nil {
+		payload = ""
+	} else if str, ok := data.(string); ok {
+		payload = str
+	} else {
+		r, err := json.Marshal(data)
+		if err == nil {
+			payload = string(r)
+		}
+	}
+
 	return EventLog{
 		Entity:      entity,
 		Action:      action,
 		Result:      result,
 		ReferenceID: refID,
-		Data:        data,
+		Data:        payload,
 	}
 }
 
@@ -241,17 +280,22 @@ func (s SukiLogger) RequestKafka(
 	message string,
 	kafkaMessage KafkaMessage,
 	kafkaResult KafkaResult,
-	tracing ...TraceInfo,
+	args ...interface{},
 ) {
 	appName := zap.String("app_name", s.config.AppName)
 	version := zap.String("version", s.config.Version)
 	logType := zap.String("log_type", "handler.kafka")
 	data := make(map[string]interface{})
+	alertLevel := LevelNone
 
-	if len(tracing) > 0 {
-		data["tracing"] = TraceInfo{
-			TraceID: tracing[0].TraceID,
-			SpanID:  tracing[0].SpanID,
+	for i, _ := range args {
+		if tracing, ok := args[i].(TraceInfo); ok {
+			data["tracing"] = TraceInfo{
+				TraceID: tracing.TraceID,
+				SpanID:  tracing.SpanID,
+			}
+		} else if opts, ok := args[i].(LogOption); ok {
+			alertLevel = opts.Alert
 		}
 	}
 
@@ -264,6 +308,7 @@ func (s SukiLogger) RequestKafka(
 		appName,
 		version,
 		logType,
+		zap.Int("alert", int(alertLevel)),
 		dataField,
 	)
 }
@@ -272,17 +317,22 @@ func (s SukiLogger) RequestHTTP(
 	message string,
 	request HTTPRequestInfo,
 	response HTTPResponseInfo,
-	tracing ...TraceInfo,
+	args ...interface{},
 ) {
 	appName := zap.String("app_name", s.config.AppName)
 	version := zap.String("version", s.config.Version)
 	logType := zap.String("log_type", "handler.http")
 	data := make(map[string]interface{})
+	alertLevel := LevelNone
 
-	if len(tracing) > 0 {
-		data["tracing"] = TraceInfo{
-			TraceID: tracing[0].TraceID,
-			SpanID:  tracing[0].SpanID,
+	for i, _ := range args {
+		if tracing, ok := args[i].(TraceInfo); ok {
+			data["tracing"] = TraceInfo{
+				TraceID: tracing.TraceID,
+				SpanID:  tracing.SpanID,
+			}
+		} else if opts, ok := args[i].(LogOption); ok {
+			alertLevel = opts.Alert
 		}
 	}
 
@@ -305,21 +355,27 @@ func (s SukiLogger) RequestHTTP(
 		appName,
 		version,
 		logType,
+		zap.Int("alert", int(alertLevel)),
 		dataField,
 	)
 
 }
 
-func (s SukiLogger) Event(message string, event EventLog, tracing ...TraceInfo) {
+func (s SukiLogger) Event(message string, event EventLog, args ...interface{}) {
 	appName := zap.String("app_name", s.config.AppName)
 	version := zap.String("version", s.config.Version)
 	logType := zap.String("log_type", "event")
 	data := make(map[string]interface{})
+	alertLevel := LevelNone
 
-	if len(tracing) > 0 {
-		data["tracing"] = TraceInfo{
-			TraceID: tracing[0].TraceID,
-			SpanID:  tracing[0].SpanID,
+	for i, _ := range args {
+		if tracing, ok := args[i].(TraceInfo); ok {
+			data["tracing"] = TraceInfo{
+				TraceID: tracing.TraceID,
+				SpanID:  tracing.SpanID,
+			}
+		} else if opts, ok := args[i].(LogOption); ok {
+			alertLevel = opts.Alert
 		}
 	}
 
@@ -331,8 +387,13 @@ func (s SukiLogger) Event(message string, event EventLog, tracing ...TraceInfo) 
 		appName,
 		version,
 		logType,
+		zap.Int("alert", int(alertLevel)),
 		dataField,
 	)
+
+}
+
+func (s SukiLogger) Audit() {
 
 }
 
@@ -348,6 +409,7 @@ func (s SukiLogger) appLogBuilder(args ...interface{}) []zap.Field {
 	}
 
 	appData := make(map[string]interface{})
+	alertLevel := LevelNone
 
 	for i, _ := range args {
 		if field, ok := args[i].(TraceInfo); ok {
@@ -358,7 +420,8 @@ func (s SukiLogger) appLogBuilder(args ...interface{}) []zap.Field {
 			} else {
 				appData[field.Key] = field.Value
 			}
-
+		} else if opts, ok := args[i].(LogOption); ok {
+			alertLevel = opts.Alert
 		}
 	}
 
@@ -372,6 +435,7 @@ func (s SukiLogger) appLogBuilder(args ...interface{}) []zap.Field {
 		appName,
 		version,
 		logType,
+		zap.Int("alert", int(alertLevel)),
 		dataField,
 	}
 }
