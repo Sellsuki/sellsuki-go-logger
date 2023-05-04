@@ -12,7 +12,8 @@ Or install specific version
 
 ```bash
 # Go client latest or explicit version
-go get github.com/Sellsuki/sellsuki-go-logger/@v1.0.0
+# Note: please check tag for the available version
+go get github.com/Sellsuki/sellsuki-go-logger/@v1.1.0
 ```
 
 ## Configuration
@@ -24,6 +25,24 @@ Config | Description                                                 | Default
 `AppName` | Application name                                            | "application"
 `Version` | Version of the application                                  | ""
 `MaxBodySize` | Max size of request body to output in bytes (0 = Unlimited) |  1048576
+
+
+## LogOption
+Log option can be specified in logging function either slog.L().Info, Event, Request
+
+Config | Description                                                                         | Default
+--- |-------------------------------------------------------------------------------------| ---
+`Alert` | Interger value indicate this log should be trigger the alert ( 0 = None, 1 = Alert) | 0
+
+**Example**
+
+```go
+slog.L().Info(
+    "Hello World",
+    slog.Any("Yeet", 1),
+    slog.WithOption(LogOption{Alert: 1}) // Log Option
+)
+```
 
 ## Basic Usage
 
@@ -43,7 +62,8 @@ slog.L().Configure(config)
 slog.L().Info(
     "Hello World",       // Log Message
     slog.Any("Yeet", 1), // Some object or variable to include in log
-    slog.WithTracing("a", "b"), // Tracing information (Optional)
+    slog.WithTracing("a", "b", "c"), // Tracing information (Optional) [trace_id, span_id, request_id (Optional)]
+	slog.WithOption(Log)
 )
 ```
 
@@ -91,7 +111,8 @@ slog.L().RequestHTTP(
     ),
     slog.WithTracing(
         "trace_id",                 // Tracing ID
-        "span_id"                   // Span ID
+        "span_id",                  // Span ID
+		"request_id",               // Request ID (Optional)
     ),
 )
 
@@ -120,6 +141,7 @@ slog.L().RequestKafka(
     slog.WithTracing(
 		"trace_id",                 // Tracing ID
 		"span_id"                   // Span ID
+        "request_id",               // Request ID (Optional)
     ),
 )
 
@@ -152,6 +174,7 @@ slog.L().Event(
     slog.WithTracing(
 		"tracing_id", 
 		"span_id"
+        "request_id",
     ),
 )
 ```
@@ -182,34 +205,34 @@ slog.L().Debug(
 slog.L().Info(
     "Hello World",       // Log Message
     slog.Any("Yeet", 1), // Some object or variable to include in log
-    slog.WithTracing("a", "b"), // Tracing information (Optional)
+    slog.WithTracing("a", "b", "c"), // Tracing information (Optional)
 )
 
 // Warning Log
 slog.L().Warn(
     "Hello World",       // Log Message
     slog.Any("Yeet", 1), // Some object or variable to include in log
-    slog.WithTracing("a", "b"), // Tracing information (Optional)
+    slog.WithTracing("a", "b", "c"), // Tracing information (Optional)
 )
 
 // Error Log
 slog.L().Error(
     "Hello World",       // Log Message
     slog.Any("Yeet", 1), // Some object or variable to include in log
-    slog.WithTracing("a", "b"), // Tracing information (Optional)
+    slog.WithTracing("a", "b", "c"), // Tracing information (Optional)
 )
 
-// Fatal Log, This log type exit the process after the log has written
+// Fatal Log, This log type will exit the process after the log has written
 slog.L().Fatal(
     "Hello World",       // Log Message
     slog.Any("Yeet", 1), // Some object or variable to include in log
-    slog.WithTracing("a", "b"), // Tracing information (Optional)
+    slog.WithTracing("a", "b", "c"), // Tracing information (Optional)
 )
 
-// Fatal Log, This log type call panic after the log has written
+// Fatal Log, This log type will call panic after the log has written
 slog.L().Panic(
     "Hello World",       // Log Message
     slog.Any("Yeet", 1), // Some object or variable to include in log
-    slog.WithTracing("a", "b"), // Tracing information (Optional)
+    slog.WithTracing("a", "b", "c"), // Tracing information (Optional)
 )
 ```
