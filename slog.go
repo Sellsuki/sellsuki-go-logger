@@ -95,6 +95,11 @@ const (
 	ActionCreate EventAction = "create"
 	ActionUpdate EventAction = "update"
 	ActionDelete EventAction = "delete"
+
+	AuditActionCreate AuditAction = "create"
+	AuditActionUpdate AuditAction = "update"
+	AuditActionDelete AuditAction = "delete"
+	AuditActionAccess AuditAction = "access"
 )
 
 const (
@@ -104,6 +109,7 @@ const (
 
 type EventAction string
 type EventResult string
+type AuditAction string
 
 type EventLog struct {
 	Entity      string      `json:"entity"`
@@ -111,6 +117,15 @@ type EventLog struct {
 	Result      EventResult `json:"result"`
 	ReferenceID string      `json:"reference_id"`
 	Data        string      `json:"data"`
+}
+
+type AuditLog struct {
+	ActorType   string      `json:"actor_type"`
+	ActorID     string      `json:"actor_id"`
+	Action      AuditAction `json:"action"`
+	Entity      string      `json:"entity"`
+	EntityRefs  []string    `json:"entity_refs"`
+	EntityOwner string      `json:"entity_owner"`
 }
 
 func Any(key string, value interface{}) LogField {
@@ -164,6 +179,18 @@ func WithEvent(entity string, action EventAction, result EventResult, data inter
 		Result:      result,
 		ReferenceID: refID,
 		Data:        payload,
+	}
+}
+
+func WithAudit(actorType, actorId string, action AuditAction, entity, entityOwner string, entityRefs ...string) AuditLog {
+
+	return AuditLog{
+		ActorType:   actorType,
+		ActorID:     actorId,
+		Action:      action,
+		Entity:      entity,
+		EntityRefs:  entityRefs,
+		EntityOwner: entityOwner,
 	}
 }
 
@@ -393,8 +420,36 @@ func (s SukiLogger) Event(message string, event EventLog, args ...interface{}) {
 
 }
 
-func (s SukiLogger) Audit() {
+func (s SukiLogger) Audit(message string, audit AuditLog, args ...interface{}) {
+	appName := zap.String("app_name", s.config.AppName)
+	version := zap.String("version", s.config.Version)
+	logType := zap.String("log_type", "audit")
+	data := make(map[string]interface{})
+	alertLevel := LevelNone
 
+	for i, _ := range args {
+		if tracing, ok := args[i].(TraceInfo); ok {
+			data["tracing"] = TraceInfo{
+				TraceID:   tracing.TraceID,
+				SpanID:    tracing.SpanID,
+				RequestID: tracing.RequestID,
+			}
+		} else if opts, ok := args[i].(LogOption); ok {
+			alertLevel = opts.Alert
+		}
+	}
+
+	data["audit"] = audit
+	dataField := zap.Any("data", data)
+
+	s.zapInstance.Info(
+		message,
+		appName,
+		version,
+		logType,
+		zap.Int("alert", int(alertLevel)),
+		dataField,
+	)
 }
 
 func (s SukiLogger) appLogBuilder(args ...interface{}) []zap.Field {
