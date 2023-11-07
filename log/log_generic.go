@@ -30,15 +30,15 @@ type Fatal struct {
 	Base
 }
 
-func NewInfo(logger *zap.Logger, cfg config.Config, msg string) Log {
-	l := New(logger, cfg, level.Info)
+func NewDebug(logger *zap.Logger, cfg config.Config, msg string) Log {
+	l := New(logger, cfg, level.Debug)
 	l.SetMessage(msg)
 
 	return l
 }
 
-func NewDebug(logger *zap.Logger, cfg config.Config, msg string) Log {
-	l := New(logger, cfg, level.Debug)
+func NewInfo(logger *zap.Logger, cfg config.Config, msg string) Log {
+	l := New(logger, cfg, level.Info)
 	l.SetMessage(msg)
 
 	return l

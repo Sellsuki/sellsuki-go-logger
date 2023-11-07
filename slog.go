@@ -4,21 +4,22 @@ import (
 	"fmt"
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
+	"github.com/Sellsuki/sellsuki-go-logger/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"sync"
 )
-
-var sukiLoggerOnce sync.Once
-
-var sukiLogger *SukiLogger
 
 type SukiLogger struct {
 	config      config.Config
 	zapInstance *zap.Logger
 }
 
-func Init(c ...config.Config) *SukiLogger {
+var sukiLoggerOnce sync.Once
+
+var sukiLogger *SukiLogger
+
+func Init(c ...config.Config) {
 	sukiLoggerOnce.Do(func() {
 		cfg := config.Config{
 			LogLevel:    level.Info,
@@ -50,6 +51,52 @@ func Init(c ...config.Config) *SukiLogger {
 
 		sukiLogger = &SukiLogger{zapInstance: logger, config: cfg}
 	})
+}
 
-	return sukiLogger
+func Debug(msg string) log.Log {
+	Init()
+
+	return log.NewDebug(sukiLogger.zapInstance, sukiLogger.config, msg)
+}
+
+func Info(msg string) log.Log {
+	Init()
+
+	return log.NewInfo(sukiLogger.zapInstance, sukiLogger.config, msg)
+}
+
+func Warn(msg string) log.Log {
+	Init()
+
+	return log.NewWarn(sukiLogger.zapInstance, sukiLogger.config, msg)
+}
+
+func Error(msg string) log.Log {
+	Init()
+
+	return log.NewError(sukiLogger.zapInstance, sukiLogger.config, msg)
+}
+
+func Panic(msg string) log.Log {
+	Init()
+
+	return log.NewPanic(sukiLogger.zapInstance, sukiLogger.config, msg)
+}
+
+func Fatal(msg string) log.Log {
+	Init()
+
+	return log.NewFatal(sukiLogger.zapInstance, sukiLogger.config, msg)
+}
+
+func Event(msg string, payload log.EventPayload) log.Log {
+	Init()
+
+	return log.NewEvent(sukiLogger.zapInstance, sukiLogger.config, msg, payload)
+}
+
+func Audit(msg string, payload log.AuditPayload) log.Log {
+	Init()
+
+	return log.NewAudit(sukiLogger.zapInstance, sukiLogger.config, msg, payload)
 }
