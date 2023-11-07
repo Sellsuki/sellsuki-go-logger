@@ -1,24 +1,30 @@
 package log
 
 import (
+	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
 	"go.uber.org/zap"
 )
 
 type Base struct {
 	logger *zap.Logger
+	config config.Config
 
 	Level     level.Level
 	Alert     bool
 	Message   string
 	Fields    []zap.Field
-	AppFields []zap.Field
+	AppFields map[string]any
 }
 
 func (l Base) Write() {
 	l.Fields = append(l.Fields, zap.Int("alert", boolToInt[l.Alert]))
 
-	l.logger.Log(level.LevelMapping(l.Level), l.Message, l.Fields...)
+	if len(l.AppFields) > 0 {
+		l.Fields = append(l.Fields, zap.Any(l.config.AppName, l.AppFields))
+	}
+
+	l.logger.Log(level.ToZapLevel(l.Level), l.Message, l.Fields...)
 }
 
 func (l Base) SetMessage(msg string) Log {
@@ -37,7 +43,8 @@ func (l Base) SetAlert(bool bool) Log {
 }
 
 func (l Base) WithAppData(key string, value any) Log {
-	l.AppFields = append(l.AppFields, zap.Any(key, value))
+	l.AppFields[key] = value
+
 	return l
 }
 
@@ -71,11 +78,32 @@ func (l Base) WithStackTrace() Log {
 	return l
 }
 
-func New(logger *zap.Logger, l level.Level) Base {
+func (l Base) WithHttpReq(req HTTPRequestPayload) Log {
+	if l.config.MaxBodySize > 0 && len(req.Body) > l.config.MaxBodySize {
+		req.Body = req.Body[:l.config.MaxBodySize]
+	}
+
+	l.Fields = append(l.Fields, zap.Any("http_request", req))
+
+	return l
+}
+
+func (l Base) WithHttpResp(resp HTTPResponsePayload) Log {
+	if l.config.MaxBodySize > 0 && len(resp.Body) > l.config.MaxBodySize {
+		resp.Body = resp.Body[:l.config.MaxBodySize]
+	}
+
+	l.Fields = append(l.Fields, zap.Any("http_response", resp))
+
+	return l
+}
+
+func New(logger *zap.Logger, cfg config.Config, l level.Level) Base {
 	return Base{
 		logger:    logger,
+		config:    cfg,
 		Fields:    make([]zap.Field, 0, 1),
-		AppFields: make([]zap.Field, 0),
+		AppFields: make(map[string]any),
 		Level:     l,
 	}
 }

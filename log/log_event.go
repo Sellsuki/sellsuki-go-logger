@@ -1,6 +1,7 @@
 package log
 
 import (
+	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
 	"go.uber.org/zap"
 )
@@ -42,8 +43,8 @@ const (
 	EventResultCompensate EventResult = "compensate"
 )
 
-func NewEvent(logger *zap.Logger, msg string, payload EventPayload) Log {
-	l := New(logger, level.Info)
+func NewEvent(logger *zap.Logger, cfg config.Config, msg string, payload EventPayload) Log {
+	l := New(logger, cfg, level.Info)
 	l.SetMessage(msg)
 	l.WithField("event", payload)
 

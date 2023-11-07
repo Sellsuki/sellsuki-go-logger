@@ -381,7 +381,7 @@ func Init(c ...config.Config) *SukiLogger {
 		zCfg.EncoderConfig.MessageKey = "message"
 		zCfg.EncoderConfig.TimeKey = "timestamp"
 		zCfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-		zCfg.Level = zap.NewAtomicLevelAt(level.LevelMapping(cfg.LogLevel))
+		zCfg.Level = zap.NewAtomicLevelAt(level.ToZapLevel(cfg.LogLevel))
 
 		logger, err := zCfg.Build(zap.AddCallerSkip(1))
 		if err != nil {

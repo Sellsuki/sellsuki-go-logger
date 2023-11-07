@@ -1,6 +1,8 @@
 package log
 
-import "github.com/Sellsuki/sellsuki-go-logger/level"
+import (
+	"github.com/Sellsuki/sellsuki-go-logger/level"
+)
 
 type Log interface {
 	Write()
@@ -15,6 +17,8 @@ type Log interface {
 	WithField(key string, value any) Log
 	WithFields(fields map[string]any) Log
 	WithStackTrace() Log
+	WithHttpReq(req HTTPRequestPayload) Log
+	WithHttpResp(resp HTTPResponsePayload) Log
 }
 
 type Payload struct {
