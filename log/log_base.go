@@ -26,7 +26,7 @@ func (l Base) Write() {
 		l.Fields = append(l.Fields, zap.Any(l.config.AppName, l.AppFields))
 	}
 
-	l.logger.Log(level.ToZapLevel(l.Level), l.Message, l.Fields...)
+	l.logger.Log(level.ToZap(l.Level), l.Message, l.Fields...)
 }
 
 func (l Base) SetMessage(msg string) Log {

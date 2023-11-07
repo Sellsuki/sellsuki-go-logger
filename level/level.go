@@ -13,7 +13,7 @@ const (
 	Fatal Level = 5
 )
 
-func ToZapLevel(level Level) zapcore.Level {
+func ToZap(level Level) zapcore.Level {
 	switch level {
 	case Debug:
 		return zapcore.DebugLevel
