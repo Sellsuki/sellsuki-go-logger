@@ -37,6 +37,11 @@ func Init(c ...config.Config) *SukiLogger {
 		zCfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 		zCfg.Level = zap.NewAtomicLevelAt(level.ToZap(cfg.LogLevel))
 
+		if cfg.Readable {
+			zCfg.Encoding = "console"
+			zCfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+		}
+
 		logger, err := zCfg.Build(zap.AddCallerSkip(1))
 		if err != nil {
 			panic(fmt.Errorf("failed to init logger: %w", err))

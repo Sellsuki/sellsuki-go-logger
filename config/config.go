@@ -7,4 +7,5 @@ type Config struct {
 	AppName     string
 	Version     string
 	MaxBodySize int
+	Readable    bool
 }
