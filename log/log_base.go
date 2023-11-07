@@ -1,8 +1,10 @@
 package log
 
 import (
+	"context"
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
+	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
 
@@ -42,6 +44,18 @@ func (l Base) SetAlert(bool bool) Log {
 	return l
 }
 
+func (l Base) WithContextSession(ctx context.Context) Log {
+	// check if ctx have session_id or generate new one
+	sessionID := ctx.Value("session_id")
+	if sessionID == nil {
+		sessionID = uuid.NewV4().String()
+		ctx = context.WithValue(ctx, "session_id", sessionID)
+	}
+
+	return l.WithField("session_id", sessionID)
+
+}
+
 func (l Base) WithAppData(key string, value any) Log {
 	l.AppFields[key] = value
 
@@ -78,7 +92,7 @@ func (l Base) WithStackTrace() Log {
 	return l
 }
 
-func (l Base) WithHttpReq(req HTTPRequestPayload) Log {
+func (l Base) WithHTTPReq(req HTTPRequestPayload) Log {
 	if l.config.MaxBodySize > 0 && len(req.Body) > l.config.MaxBodySize {
 		req.Body = req.Body[:l.config.MaxBodySize]
 	}
@@ -88,12 +102,28 @@ func (l Base) WithHttpReq(req HTTPRequestPayload) Log {
 	return l
 }
 
-func (l Base) WithHttpResp(resp HTTPResponsePayload) Log {
+func (l Base) WithHTTPResp(resp HTTPResponsePayload) Log {
 	if l.config.MaxBodySize > 0 && len(resp.Body) > l.config.MaxBodySize {
 		resp.Body = resp.Body[:l.config.MaxBodySize]
 	}
 
 	l.Fields = append(l.Fields, zap.Any("http_response", resp))
+
+	return l
+}
+
+func (l Base) WithKafkaMessage(msg KafkaMessagePayload) Log {
+	if l.config.MaxBodySize > 0 && len(msg.Payload) > l.config.MaxBodySize {
+		msg.Payload = msg.Payload[:l.config.MaxBodySize]
+	}
+
+	l.Fields = append(l.Fields, zap.Any("kafka_message", msg))
+
+	return l
+}
+
+func (l Base) WithKafkaResult(result KafkaResultPayload) Log {
+	l.Fields = append(l.Fields, zap.Any("kafka_result", result))
 
 	return l
 }
