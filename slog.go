@@ -2,33 +2,21 @@ package slog
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/Sellsuki/sellsuki-go-logger/config"
+	"github.com/Sellsuki/sellsuki-go-logger/level"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"sync"
 	"time"
 )
 
-type LogLevel int8
-
-const (
-	LevelDebug LogLevel = -1
-	LevelInfo  LogLevel = 0
-	LevelWarn  LogLevel = 1
-	LevelError LogLevel = 2
-	LevelPanic LogLevel = 4
-	LevelFatal LogLevel = 5
-)
+var sukiLoggerOnce sync.Once
 
 var sukiLogger *SukiLogger
 
-type Config struct {
-	LogLevel    LogLevel
-	AppName     string
-	Version     string
-	MaxBodySize int
-}
-
 type SukiLogger struct {
-	config      Config
+	config      config.Config
 	zapInstance *zap.Logger
 }
 
@@ -49,26 +37,27 @@ type LogOption struct {
 }
 
 type TraceInfo struct {
-	TraceID   string `json:"trace_id"`
-	SpanID    string `json:"span_id"`
-	RequestID string `json:"request_id"`
+	TraceID string `json:"trace_id"`
+	SpanID  string `json:"span_id"`
 }
 
 type HTTPRequestInfo struct {
-	Method   string            `json:"method"`
-	Path     string            `json:"path"`
-	RemoteIP string            `json:"remote_ip"`
-	Headers  map[string]string `json:"headers"`
-	Params   map[string]string `json:"params"`
-	Query    map[string]string `json:"query"`
-	Body     string            `json:"body"`
+	Method    string            `json:"method"`
+	Path      string            `json:"path"`
+	RemoteIP  string            `json:"remote_ip"`
+	Headers   map[string]string `json:"headers"`
+	Params    map[string]string `json:"params"`
+	Query     map[string]string `json:"query"`
+	Body      string            `json:"body"`
+	RequestID string            `json:"request_id"`
 }
 
 type HTTPResponseInfo struct {
-	Status   int64     `json:"status"`
-	Duration float64   `json:"duration"`
-	Body     string    `json:"body"`
-	Error    ErrorInfo `json:"error"`
+	Status    int64     `json:"status"`
+	Duration  float64   `json:"duration"`
+	Body      string    `json:"body"`
+	Error     ErrorInfo `json:"error"`
+	RequestID string    `json:"request_id"`
 }
 
 type ErrorInfo struct {
@@ -140,19 +129,6 @@ func Error(err error) LogField {
 		return Any("error", err.Error())
 	}
 	return Any("error", "")
-}
-
-func WithTracing(traceID string, spanID string, requestID ...string) TraceInfo {
-	reqID := ""
-	if len(requestID) > 0 {
-		reqID = requestID[0]
-	}
-
-	return TraceInfo{
-		TraceID:   traceID,
-		SpanID:    spanID,
-		RequestID: reqID,
-	}
 }
 
 func WithOption(opts LogOption) LogOption {
@@ -388,205 +364,33 @@ func (s SukiLogger) RequestHTTP(
 
 }
 
-func (s SukiLogger) Event(message string, event EventLog, args ...interface{}) {
-	appName := zap.String("app_name", s.config.AppName)
-	version := zap.String("version", s.config.Version)
-	logType := zap.String("log_type", "event")
-	data := make(map[string]interface{})
-	alertLevel := LevelNone
-
-	for i, _ := range args {
-		if tracing, ok := args[i].(TraceInfo); ok {
-			data["tracing"] = TraceInfo{
-				TraceID: tracing.TraceID,
-				SpanID:  tracing.SpanID,
-			}
-		} else if opts, ok := args[i].(LogOption); ok {
-			alertLevel = opts.Alert
+func Init(c ...config.Config) *SukiLogger {
+	sukiLoggerOnce.Do(func() {
+		cfg := config.Config{
+			LogLevel:    level.Info,
+			AppName:     "unknown",
+			Version:     "v0.0.0",
+			MaxBodySize: 1048576,
 		}
-	}
-
-	data["event"] = event
-	dataField := zap.Any("data", data)
-
-	s.zapInstance.Info(
-		message,
-		appName,
-		version,
-		logType,
-		zap.Int("alert", int(alertLevel)),
-		dataField,
-	)
-
-}
-
-func (s SukiLogger) Audit(message string, audit AuditLog, args ...interface{}) {
-	appName := zap.String("app_name", s.config.AppName)
-	version := zap.String("version", s.config.Version)
-	logType := zap.String("log_type", "audit")
-	data := make(map[string]interface{})
-	alertLevel := LevelNone
-
-	for i, _ := range args {
-		if tracing, ok := args[i].(TraceInfo); ok {
-			data["tracing"] = TraceInfo{
-				TraceID:   tracing.TraceID,
-				SpanID:    tracing.SpanID,
-				RequestID: tracing.RequestID,
-			}
-		} else if opts, ok := args[i].(LogOption); ok {
-			alertLevel = opts.Alert
+		if len(c) > 0 {
+			cfg = c[0]
 		}
-	}
 
-	data["audit"] = audit
-	dataField := zap.Any("data", data)
+		zCfg := zap.NewProductionConfig()
+		zCfg.EncoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
+		zCfg.EncoderConfig.MessageKey = "message"
+		zCfg.EncoderConfig.TimeKey = "timestamp"
+		zCfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		zCfg.Level = zap.NewAtomicLevelAt(level.LevelMapping(cfg.LogLevel))
 
-	s.zapInstance.Info(
-		message,
-		appName,
-		version,
-		logType,
-		zap.Int("alert", int(alertLevel)),
-		dataField,
-	)
-}
-
-func (s SukiLogger) appLogBuilder(args ...interface{}) []zap.Field {
-	appName := zap.String("app_name", s.config.AppName)
-	version := zap.String("version", s.config.Version)
-	logType := zap.String("log_type", "application")
-	data := make(map[string]interface{})
-
-	appKey := s.config.AppName
-	if len(appKey) <= 0 {
-		appKey = "payload"
-	}
-
-	appData := make(map[string]interface{})
-	alertLevel := LevelNone
-
-	for i, _ := range args {
-		if field, ok := args[i].(TraceInfo); ok {
-			data["tracing"] = field
-		} else if field, ok := args[i].(LogField); ok {
-			if val, ok := field.Value.(error); ok {
-				appData[field.Key] = val.Error()
-			} else {
-				appData[field.Key] = field.Value
-			}
-		} else if opts, ok := args[i].(LogOption); ok {
-			alertLevel = opts.Alert
+		logger, err := zCfg.Build(zap.AddCallerSkip(1))
+		if err != nil {
+			panic(fmt.Errorf("failed to init logger: %w", err))
 		}
-	}
+		defer logger.Sync()
 
-	if len(appData) > 0 {
-		data[appKey] = appData
-	}
+		sukiLogger = &SukiLogger{zapInstance: logger, config: cfg}
+	})
 
-	dataField := zap.Any("data", data)
-
-	return []zap.Field{
-		appName,
-		version,
-		logType,
-		zap.Int("alert", int(alertLevel)),
-		dataField,
-	}
-}
-
-func (s SukiLogger) Info(message string, args ...interface{}) {
-	result := s.appLogBuilder(args...)
-
-	s.zapInstance.Info(
-		message,
-		result...,
-	)
-}
-
-func (s SukiLogger) Debug(message string, args ...interface{}) {
-	result := s.appLogBuilder(args...)
-	s.zapInstance.Debug(
-		message,
-		result...,
-	)
-}
-
-func (s SukiLogger) Error(message string, args ...interface{}) {
-	result := s.appLogBuilder(args...)
-	s.zapInstance.Error(
-		message,
-		result...,
-	)
-}
-
-func (s SukiLogger) Warn(message string, args ...interface{}) {
-	result := s.appLogBuilder(args...)
-	s.zapInstance.Warn(
-		message,
-		result...,
-	)
-}
-
-func (s SukiLogger) Panic(message string, args ...interface{}) {
-	result := s.appLogBuilder(args...)
-	s.zapInstance.Panic(
-		message,
-		result...,
-	)
-}
-
-func (s SukiLogger) Fatal(message string, args ...interface{}) {
-	result := s.appLogBuilder(args...)
-	s.zapInstance.Fatal(
-		message,
-		result...,
-	)
-}
-
-func (s *SukiLogger) Configure(c Config) error {
-	config := zap.NewProductionConfig()
-	config.EncoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
-	config.EncoderConfig.MessageKey = "message"
-	config.EncoderConfig.TimeKey = "timestamp"
-	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	config.Level = zap.NewAtomicLevelAt(zapcore.Level(c.LogLevel))
-
-	logger, err := config.Build(zap.AddCallerSkip(1))
-	if err != nil {
-		return err
-	}
-	defer logger.Sync()
-
-	s.zapInstance = logger
-	s.config = c
-	return nil
-}
-
-func L() *SukiLogger {
-	if sukiLogger == nil {
-		config := zap.NewProductionConfig()
-		config.EncoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
-		config.EncoderConfig.MessageKey = "message"
-		config.EncoderConfig.TimeKey = "timestamp"
-		config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-		config.Level = zap.NewAtomicLevelAt(zapcore.FatalLevel)
-
-		logger, _ := config.Build(zap.AddCallerSkip(1))
-
-		sukiLogger = &SukiLogger{zapInstance: logger}
-	}
 	return sukiLogger
-}
-
-func NewProductionConfig() Config {
-
-	config := Config{
-		LogLevel:    LevelInfo,
-		AppName:     "application",
-		Version:     "1.0.0",
-		MaxBodySize: 1048576,
-	}
-
-	return config
 }
