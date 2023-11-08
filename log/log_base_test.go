@@ -1,11 +1,13 @@
 package log
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"reflect"
 	"testing"
 	"time"
@@ -905,7 +907,46 @@ func TestBase_WithKafkaResult(t *testing.T) {
 }
 
 func TestBase_WithStackTrace(t *testing.T) {
-	// No idea how to test this
+	// Create a zap.Logger for testing purposes
+	logger, _ := zap.NewDevelopment()
+
+	// Create a sample config
+	config := config.Config{
+		// Initialize your configuration fields here.
+	}
+
+	// Initialize a Base object with the required parameters
+	base := Base{
+		logger:  logger,
+		config:  config,
+		Level:   level.Info, // Set the level as needed.
+		Alert:   true,       // Set the Alert as needed.
+		Message: "Test message",
+		Fields:  []zap.Field{},
+		AppFields: map[string]interface{}{
+			"key1": "value1",
+			"key2": "value2",
+		},
+	}
+
+	// Call the WithStackTrace method
+	baseWithStackTrace := base.WithStackTrace().(Base)
+
+	// Assert that the "stack_trace" field has been added to the Fields slice
+	// We use zap.Field to construct the expected field to compare
+	expectedStackField := zap.Field{Key: "stack_trace", Type: zapcore.StringType, String: ""} // Customize the expected field based on your needs
+
+	found := false
+	for _, field := range baseWithStackTrace.Fields {
+		if field.Key == expectedStackField.Key && field.Type == expectedStackField.Type {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		t.Error("Expected 'stack_trace' field not found in Fields")
+	}
 }
 
 func TestBase_WithTracing(t *testing.T) {
@@ -971,49 +1012,74 @@ func TestBase_WithTracing(t *testing.T) {
 }
 
 func TestBase_Write(t *testing.T) {
-	// Create an instance of your Base struct with a mock logger
-	mockLogger := &MockLogger{}
+	// Create a sample config
+	c := config.Config{
+		AppName: "app_name",
+		Version: "1.0.0",
+	}
+
+	// Create a buffer to capture the log output
+	var buf bytes.Buffer
+
+	// Create a zapcore.Encoder and zapcore.WriteSyncer
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = FixedTimeEncoder // Disable timestamp
+	encoder := zapcore.NewJSONEncoder(encoderConfig)
+	writeSyncer := zapcore.AddSync(&buf)
+
+	// Create a zapcore.Core that writes to the buffer
+	core := zapcore.NewCore(encoder, writeSyncer, zap.NewAtomicLevel())
+
+	// Create a logger with the core
+	logger := zap.New(core)
+
+	// Initialize a Base object with the required parameters
 	base := Base{
-		logger:  mockLogger,
-		config:  config.Config{}, // Replace with your config initialization
-		Level:   level.Info,      // Set the desired log level
-		Alert:   true,            // Set the alert flag to true or false as needed
-		Message: "Test message",  // Set your desired log message
-		// Set other fields and AppFields as needed
+		logger:  logger,
+		config:  c,
+		Level:   level.Info, // Set the level as needed.
+		Alert:   true,       // Set the Alert as needed.
+		Message: "Test message",
+		Fields:  []zap.Field{},
+		AppFields: map[string]interface{}{
+			"key1": "value1",
+			"key2": "value2",
+		},
 	}
 
 	// Call the Write method
 	base.Write()
 
-	// Assert that the mock logger was called with the expected data
-	if !mockLogger.logged {
-		t.Errorf("Expected the logger to be called, but it wasn't.")
-	}
-	if mockLogger.level != zap.InfoLevel {
-		t.Errorf("Expected log level Info, got %v", mockLogger.level)
-	}
-	if mockLogger.msg != "Test message" {
-		t.Errorf("Expected message 'Test message', got %v", mockLogger.msg)
-	}
-	// Add more assertions for fields if needed
+	// Add assertions to check the expected behavior
+	// For example, you can use the buffer to capture the output and then assert on it.
+	// For simplicity, you can use buffer.String() to get the log output.
+
+	// Capture the log output
+	logOutput := buf.String()
+
+	// Assert on the expected log message or other criteria based on the expected behavior
+	expectedLog := "{\"level\":\"info\",\"ts\":\"fixed\",\"msg\":\"Test message\",\"alert\":1,\"app_name\":{\"key1\":\"value1\",\"key2\":\"value2\"}}\n"
+
+	assert.Equal(t, expectedLog, logOutput)
 }
 
 func TestBase_New(t *testing.T) {
-	type args struct {
-		logger *zap.Logger
-		cfg    config.Config
-		l      level.Level
+	// Create a zap.Logger for testing purposes
+	logger, _ := zap.NewDevelopment()
+
+	// Create a sample config
+	c := config.Config{
+		// Initialize your configuration fields here.
 	}
-	tests := []struct {
-		name string
-		args args
-		want Base
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, New(tt.args.logger, tt.args.cfg, tt.args.l), "New(%v, %v, %v)", tt.args.logger, tt.args.cfg, tt.args.l)
-		})
-	}
+
+	// Call the New function to create a Base object
+	lv := level.Info // Set the desired level
+	base := New(logger, c, lv)
+
+	// Assert on the expected values in the created Base object
+	assert.Equal(t, logger, base.logger)
+	assert.Equal(t, c, base.config)
+	assert.Equal(t, lv, base.Level)
+	assert.Equal(t, false, base.Alert)
+	assert.Equal(t, "", base.Message)
 }

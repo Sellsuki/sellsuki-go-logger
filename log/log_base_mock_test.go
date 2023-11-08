@@ -3,6 +3,7 @@ package log
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"time"
 )
 
 // Define a TestTracer struct that implements the Tracer interface for testing.
@@ -38,4 +39,8 @@ func (m *MockLogger) Log(level zapcore.Level, msg string, fields ...zap.Field) {
 	m.level = level
 	m.msg = msg
 	m.fields = fields
+}
+
+func FixedTimeEncoder(_ time.Time, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendString("fixed")
 }
