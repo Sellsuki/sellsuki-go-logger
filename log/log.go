@@ -2,6 +2,7 @@ package log
 
 import (
 	"github.com/Sellsuki/sellsuki-go-logger/level"
+	"go.uber.org/zap/zapcore"
 )
 
 // Log is a flexible logging interface with methods for customizing log entries.
@@ -20,6 +21,10 @@ type Log interface {
 	WithHTTPResp(resp HTTPResponsePayload) Log     // Adds an HTTP response payload.
 	WithKafkaMessage(msg KafkaMessagePayload) Log  // Adds a Kafka message payload.
 	WithKafkaResult(result KafkaResultPayload) Log // Adds a Kafka result payload.
+}
+
+type zapLogger interface {
+	Log(level zapcore.Level, msg string, fields ...zapcore.Field)
 }
 
 type Payload struct {

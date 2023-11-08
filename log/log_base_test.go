@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestBase_SetAlert(t *testing.T) {
@@ -527,7 +528,45 @@ func TestBase_WithHTTPReq(t *testing.T) {
 				},
 			},
 		},
-		// Add more test cases with different request payloads if needed
+		{
+			name: "Trim body when it exceeds MaxBodySize",
+			fields: fields{
+				logger: logger,
+				config: config.Config{
+					MaxBodySize: 10,
+				},
+			},
+			args: args{
+				req: HTTPRequestPayload{
+					Method: "POST",
+					Path:   "/api",
+					Headers: map[string]string{
+						"Content-Type": "application/json",
+					},
+					// Body exceeds the configured MaxBodySize
+					Body:      []byte(`{"large_body": "This is a large body that exceeds the maximum allowed size"}`),
+					RequestID: "789012",
+				},
+			},
+			want: Base{
+				logger: logger,
+				config: config.Config{
+					MaxBodySize: 10,
+				},
+				Fields: []zap.Field{
+					zap.Any("http_request", HTTPRequestPayload{
+						Method: "POST",
+						Path:   "/api",
+						Headers: map[string]string{
+							"Content-Type": "application/json",
+						},
+						// Body is trimmed to the maximum allowed size
+						Body:      []byte(`{"large_bo`),
+						RequestID: "789012",
+					}),
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -540,14 +579,15 @@ func TestBase_WithHTTPReq(t *testing.T) {
 				Fields:    tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
-			if got := l.WithHTTPReq(tt.args.req); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("WithHTTPReq() = %v, want %v", got, tt.want)
-			}
+
+			assert.Equal(t, tt.want, l.WithHTTPReq(tt.args.req))
 		})
 	}
 }
 
 func TestBase_WithHTTPResp(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+
 	type fields struct {
 		logger    *zap.Logger
 		config    config.Config
@@ -564,9 +604,92 @@ func TestBase_WithHTTPResp(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Log
+		want   Base
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Add HTTP response payload with status, duration, and body",
+			fields: fields{
+				logger: logger,
+			},
+			args: args{
+				resp: HTTPResponsePayload{
+					Status:    200,
+					Duration:  time.Millisecond * 100,
+					Body:      []byte("Response body content"),
+					RequestID: "123456",
+				},
+			},
+			want: Base{
+				logger: logger,
+				Fields: []zap.Field{
+					zap.Any("http_response", HTTPResponsePayload{
+						Status:    200,
+						Duration:  time.Millisecond * 100,
+						Body:      []byte("Response body content"),
+						RequestID: "123456",
+					}),
+				},
+			},
+		},
+		{
+			name: "Add HTTP response payload with an error message",
+			fields: fields{
+				logger: logger,
+			},
+			args: args{
+				resp: HTTPResponsePayload{
+					Status:    500,
+					Duration:  time.Millisecond * 500,
+					Error:     "Internal Server Error",
+					RequestID: "789012",
+				},
+			},
+			want: Base{
+				logger: logger,
+				Fields: []zap.Field{
+					zap.Any("http_response", HTTPResponsePayload{
+						Status:    500,
+						Duration:  time.Millisecond * 500,
+						Error:     "Internal Server Error",
+						RequestID: "789012",
+					}),
+				},
+			},
+		},
+		{
+			name: "Trim body when it exceeds MaxBodySize",
+			fields: fields{
+				logger: logger,
+				config: config.Config{
+					MaxBodySize: 10,
+				},
+			},
+			args: args{
+				resp: HTTPResponsePayload{
+					Status:   200,
+					Duration: time.Millisecond * 100,
+					// Body exceeds the configured MaxBodySize
+					Body:      []byte("This is a large body that exceeds the maximum allowed size"),
+					RequestID: "123456",
+				},
+			},
+			want: Base{
+				logger: logger,
+				config: config.Config{
+					MaxBodySize: 10,
+				},
+				Fields: []zap.Field{
+					zap.Any("http_response", HTTPResponsePayload{
+						Status:   200,
+						Duration: time.Millisecond * 100,
+						// Body is trimmed to the maximum allowed size
+						Body:      []byte("This is a "),
+						RequestID: "123456",
+					}),
+				},
+			},
+		},
+		// Add more test cases for different response payloads
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -579,14 +702,16 @@ func TestBase_WithHTTPResp(t *testing.T) {
 				Fields:    tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
-			if got := l.WithHTTPResp(tt.args.resp); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("WithHTTPResp() = %v, want %v", got, tt.want)
-			}
+
+			assert.Equal(t, tt.want, l.WithHTTPResp(tt.args.resp))
 		})
 	}
 }
 
 func TestBase_WithKafkaMessage(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+
+	now := time.Now()
 	type fields struct {
 		logger    *zap.Logger
 		config    config.Config
@@ -603,9 +728,79 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Log
+		want   Base
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Add Kafka message payload with details",
+			fields: fields{
+				logger: logger,
+			},
+			args: args{
+				msg: KafkaMessagePayload{
+					Topic:     "important-events",
+					Partition: 1,
+					Offset:    12345,
+					Headers:   map[string]string{"key1": "value1", "key2": "value2"},
+					Key:       "message-key",
+					Payload:   []byte("This is a Kafka message payload."),
+					Timestamp: now,
+				},
+			},
+			want: Base{
+				logger: logger,
+				Fields: []zap.Field{
+					zap.Any("kafka_message", KafkaMessagePayload{
+						Topic:     "important-events",
+						Partition: 1,
+						Offset:    12345,
+						Headers:   map[string]string{"key1": "value1", "key2": "value2"},
+						Key:       "message-key",
+						Payload:   []byte("This is a Kafka message payload."),
+						Timestamp: now,
+					}),
+				},
+			},
+		},
+		{
+			name: "Add Kafka message payload with large payload",
+			fields: fields{
+				config: config.Config{
+					MaxBodySize: 20,
+				},
+				logger: logger,
+			},
+			args: args{
+				msg: KafkaMessagePayload{
+					Topic:     "important-events",
+					Partition: 1,
+					Offset:    12345,
+					Headers:   map[string]string{"key1": "value1", "key2": "value2"},
+					Key:       "message-key",
+					// Create a large payload exceeding the maximum allowed size
+					Payload:   []byte("This is a very large Kafka message payload exceeding the maximum allowed size."),
+					Timestamp: now,
+				},
+			},
+			want: Base{
+				config: config.Config{
+					MaxBodySize: 20,
+				},
+				logger: logger,
+				Fields: []zap.Field{
+					zap.Any("kafka_message", KafkaMessagePayload{
+						Topic:     "important-events",
+						Partition: 1,
+						Offset:    12345,
+						Headers:   map[string]string{"key1": "value1", "key2": "value2"},
+						Key:       "message-key",
+						// Ensure that the payload is trimmed to the maximum allowed size
+						Payload:   []byte("This is a very large"),
+						Timestamp: now,
+					}),
+				},
+			},
+			// Add more test cases for different Kafka message payloads
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -618,14 +813,18 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 				Fields:    tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
-			if got := l.WithKafkaMessage(tt.args.msg); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("WithKafkaMessage() = %v, want %v", got, tt.want)
-			}
+
+			assert.Equal(t, tt.want, l.WithKafkaMessage(tt.args.msg))
 		})
 	}
 }
 
 func TestBase_WithKafkaResult(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+
+	duration := time.Millisecond * 500 // Sample duration
+	errMessage := "Kafka error message"
+
 	type fields struct {
 		logger    *zap.Logger
 		config    config.Config
@@ -635,17 +834,59 @@ func TestBase_WithKafkaResult(t *testing.T) {
 		Fields    []zap.Field
 		AppFields map[string]any
 	}
+
 	type args struct {
 		result KafkaResultPayload
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   Log
+		want   Base
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Add Kafka result payload with success",
+			fields: fields{
+				logger: logger,
+			},
+			args: args{
+				result: KafkaResultPayload{
+					Duration: duration,
+				},
+			},
+			want: Base{
+				logger: logger,
+				Fields: []zap.Field{
+					zap.Any("kafka_result", KafkaResultPayload{
+						Duration: duration,
+					}),
+				},
+			},
+		},
+		{
+			name: "Add Kafka result payload with error message",
+			fields: fields{
+				logger: logger,
+			},
+			args: args{
+				result: KafkaResultPayload{
+					Duration: duration,
+					Error:    errMessage,
+				},
+			},
+			want: Base{
+				logger: logger,
+				Fields: []zap.Field{
+					zap.Any("kafka_result", KafkaResultPayload{
+						Duration: duration,
+						Error:    errMessage,
+					}),
+				},
+			},
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := Base{
@@ -657,49 +898,18 @@ func TestBase_WithKafkaResult(t *testing.T) {
 				Fields:    tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
-			if got := l.WithKafkaResult(tt.args.result); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("WithKafkaResult() = %v, want %v", got, tt.want)
-			}
+
+			assert.Equal(t, tt.want, l.WithKafkaResult(tt.args.result))
 		})
 	}
 }
 
 func TestBase_WithStackTrace(t *testing.T) {
-	type fields struct {
-		logger    *zap.Logger
-		config    config.Config
-		Level     level.Level
-		Alert     bool
-		Message   string
-		Fields    []zap.Field
-		AppFields map[string]any
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   Log
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			l := Base{
-				logger:    tt.fields.logger,
-				config:    tt.fields.config,
-				Level:     tt.fields.Level,
-				Alert:     tt.fields.Alert,
-				Message:   tt.fields.Message,
-				Fields:    tt.fields.Fields,
-				AppFields: tt.fields.AppFields,
-			}
-			if got := l.WithStackTrace(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("WithStackTrace() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	// No idea how to test this
 }
 
 func TestBase_WithTracing(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
 	type fields struct {
 		logger    *zap.Logger
 		config    config.Config
@@ -709,17 +919,40 @@ func TestBase_WithTracing(t *testing.T) {
 		Fields    []zap.Field
 		AppFields map[string]any
 	}
+
 	type args struct {
 		t Tracer
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   Log
+		want   Base
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Add tracing information",
+			fields: fields{
+				logger: logger, // Assuming you have a logger instance available.
+			},
+			args: args{
+				t: &TestTracer{
+					TraceIDVal: "12345",
+					SpanIDVal:  "67890",
+				},
+			},
+			want: Base{
+				logger: logger,
+				Fields: []zap.Field{zap.Any("tracing", map[string]string{
+					"trace_id": "12345",
+					"span_id":  "67890",
+				}),
+				},
+			},
+		},
+		// Add more test cases for different Tracer implementations
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := Base{
@@ -731,41 +964,56 @@ func TestBase_WithTracing(t *testing.T) {
 				Fields:    tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
-			if got := l.WithTracing(tt.args.t); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("WithTracing() = %v, want %v", got, tt.want)
-			}
+
+			assert.Equal(t, tt.want, l.WithTracing(tt.args.t))
 		})
 	}
 }
 
 func TestBase_Write(t *testing.T) {
-	type fields struct {
-		logger    *zap.Logger
-		config    config.Config
-		Level     level.Level
-		Alert     bool
-		Message   string
-		Fields    []zap.Field
-		AppFields map[string]any
+	// Create an instance of your Base struct with a mock logger
+	mockLogger := &MockLogger{}
+	base := Base{
+		logger:  mockLogger,
+		config:  config.Config{}, // Replace with your config initialization
+		Level:   level.Info,      // Set the desired log level
+		Alert:   true,            // Set the alert flag to true or false as needed
+		Message: "Test message",  // Set your desired log message
+		// Set other fields and AppFields as needed
+	}
+
+	// Call the Write method
+	base.Write()
+
+	// Assert that the mock logger was called with the expected data
+	if !mockLogger.logged {
+		t.Errorf("Expected the logger to be called, but it wasn't.")
+	}
+	if mockLogger.level != zap.InfoLevel {
+		t.Errorf("Expected log level Info, got %v", mockLogger.level)
+	}
+	if mockLogger.msg != "Test message" {
+		t.Errorf("Expected message 'Test message', got %v", mockLogger.msg)
+	}
+	// Add more assertions for fields if needed
+}
+
+func TestBase_New(t *testing.T) {
+	type args struct {
+		logger *zap.Logger
+		cfg    config.Config
+		l      level.Level
 	}
 	tests := []struct {
-		name   string
-		fields fields
+		name string
+		args args
+		want Base
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := Base{
-				logger:    tt.fields.logger,
-				config:    tt.fields.config,
-				Level:     tt.fields.Level,
-				Alert:     tt.fields.Alert,
-				Message:   tt.fields.Message,
-				Fields:    tt.fields.Fields,
-				AppFields: tt.fields.AppFields,
-			}
-			l.Write()
+			assert.Equalf(t, tt.want, New(tt.args.logger, tt.args.cfg, tt.args.l), "New(%v, %v, %v)", tt.args.logger, tt.args.cfg, tt.args.l)
 		})
 	}
 }

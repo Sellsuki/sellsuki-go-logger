@@ -56,6 +56,13 @@ func TestToZap(t *testing.T) {
 			},
 			want: zapcore.FatalLevel,
 		},
+		{
+			name: "Wrong",
+			args: args{
+				level: 123,
+			},
+			want: zapcore.InfoLevel,
+		},
 	}
 
 	for _, tt := range tests {

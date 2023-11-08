@@ -7,7 +7,7 @@ import (
 )
 
 type Base struct {
-	logger *zap.Logger
+	logger zapLogger
 	config config.Config
 
 	Level     level.Level
