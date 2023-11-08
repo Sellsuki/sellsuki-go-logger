@@ -1074,7 +1074,7 @@ func TestBase_New(t *testing.T) {
 
 	// Call the New function to create a Base object
 	lv := level.Info // Set the desired level
-	base := New(logger, c, lv)
+	base := New(logger, c, lv, TypeApplication)
 
 	// Assert on the expected values in the created Base object
 	assert.Equal(t, logger, base.logger)

@@ -31,43 +31,49 @@ type Fatal struct {
 }
 
 func NewDebug(logger *zap.Logger, cfg config.Config, msg string) Log {
-	l := New(logger, cfg, level.Debug)
-	l.SetMessage(msg)
+	l := New(logger, cfg, level.Debug, TypeApplication).SetMessage(msg).(Base)
 
-	return l
+	return Debug{
+		Base: l,
+	}
 }
 
 func NewInfo(logger *zap.Logger, cfg config.Config, msg string) Log {
-	l := New(logger, cfg, level.Info)
-	l.SetMessage(msg)
+	l := New(logger, cfg, level.Info, TypeApplication).SetMessage(msg).(Base)
 
-	return l
+	return Info{
+		Base: l,
+	}
 }
 
 func NewWarn(logger *zap.Logger, cfg config.Config, msg string) Log {
-	l := New(logger, cfg, level.Warn)
-	l.SetMessage(msg)
+	l := New(logger, cfg, level.Warn, TypeApplication).SetMessage(msg).(Base)
 
-	return l
+	return Warn{
+		Base: l,
+	}
 }
 
 func NewError(logger *zap.Logger, cfg config.Config, msg string) Log {
-	l := New(logger, cfg, level.Error)
-	l.SetMessage(msg)
+	l := New(logger, cfg, level.Error, TypeApplication).SetMessage(msg).(Base)
 
-	return l
+	return Error{
+		Base: l,
+	}
 }
 
 func NewPanic(logger *zap.Logger, cfg config.Config, msg string) Log {
-	l := New(logger, cfg, level.Panic)
-	l.SetMessage(msg)
+	l := New(logger, cfg, level.Panic, TypeApplication).SetMessage(msg).(Base)
 
-	return l
+	return Panic{
+		Base: l,
+	}
 }
 
 func NewFatal(logger *zap.Logger, cfg config.Config, msg string) Log {
-	l := New(logger, cfg, level.Fatal)
-	l.SetMessage(msg)
+	l := New(logger, cfg, level.Fatal, TypeApplication).SetMessage(msg).(Base)
 
-	return l
+	return Fatal{
+		Base: l,
+	}
 }

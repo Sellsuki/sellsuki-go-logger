@@ -6,10 +6,19 @@ import (
 	"go.uber.org/zap"
 )
 
+type Type string
+
+const (
+	TypeAudit       Type = "audit"
+	TypeEvent       Type = "event"
+	TypeApplication Type = "application"
+)
+
 type Base struct {
 	logger zapLogger
 	config config.Config
 
+	Type      Type
 	Level     level.Level
 	Alert     bool
 	Message   string
@@ -114,12 +123,13 @@ func (l Base) WithKafkaResult(result KafkaResultPayload) Log {
 	return l
 }
 
-func New(logger *zap.Logger, cfg config.Config, l level.Level) Base {
+func New(logger *zap.Logger, cfg config.Config, l level.Level, t Type) Base {
 	return Base{
 		logger:    logger,
 		config:    cfg,
 		Fields:    make([]zap.Field, 0, 1),
 		AppFields: make(map[string]any),
 		Level:     l,
+		Type:      t,
 	}
 }

@@ -36,14 +36,15 @@ const (
 )
 
 func NewEvent(logger *zap.Logger, cfg config.Config, msg string, payload EventPayload) Log {
-	l := New(logger, cfg, level.Info)
-	l.SetMessage(msg)
+	l := New(logger, cfg, level.Info, TypeEvent).
+		SetMessage(msg).
+		WithField("event", payload).(Base)
 
 	if payload.Data != nil {
 		payload.DataJSON, _ = json.Marshal(payload.Data)
 	}
 
-	l.WithField("event", payload)
-
-	return l
+	return Event{
+		Base: l,
+	}
 }

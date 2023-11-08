@@ -8,22 +8,37 @@ import (
 )
 
 func TestNewEvent(t *testing.T) {
-	type args struct {
-		logger  *zap.Logger
-		cfg     config.Config
-		msg     string
-		payload EventPayload
+	// Create a zap.Logger for testing purposes
+	logger, _ := zap.NewDevelopment()
+
+	// Create a sample config
+	config := config.Config{
+		// Initialize your configuration fields here.
 	}
-	tests := []struct {
-		name string
-		args args
-		want Log
-	}{
-		// TODO: Add test cases.
+
+	// Define test data for the payload
+	payload := EventPayload{
+		Entity:      "{{your_bu}}.order",
+		ReferenceID: "ODR_1234567890",
+		Action:      EventActionCreate,
+		Result:      EventResultSuccess,
+		Data: map[string]interface{}{
+			"key1": "value1",
+			"key2": "value2",
+		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, NewEvent(tt.args.logger, tt.args.cfg, tt.args.msg, tt.args.payload), "NewEvent(%v, %v, %v, %v)", tt.args.logger, tt.args.cfg, tt.args.msg, tt.args.payload)
-		})
-	}
+
+	// Define the test message
+	msg := "Test event message"
+
+	// Call the NewEvent function to create an Event object
+	event := NewEvent(logger, config, msg, payload).(Event)
+
+	// Use assert functions to make your assertions
+	assert.Equal(t, logger, event.logger, "Logger should match")
+	assert.Equal(t, config, event.config, "Config should match")
+	assert.Equal(t, msg, event.Message, "Message should match")
+
+	// You can add more assertions for other fields as needed, such as the payload.
+	// Use WithField and other methods to add fields to the Event object and check if they are correctly set.
 }
