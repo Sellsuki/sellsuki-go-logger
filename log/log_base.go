@@ -1,10 +1,8 @@
 package log
 
 import (
-	"context"
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
-	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
 
@@ -42,18 +40,6 @@ func (l Base) SetLevel(level level.Level) Log {
 func (l Base) SetAlert(bool bool) Log {
 	l.Alert = bool
 	return l
-}
-
-func (l Base) WithContextSession(ctx context.Context) Log {
-	// check if ctx have session_id or generate new one
-	sessionID := ctx.Value("session_id")
-	if sessionID == nil {
-		sessionID = uuid.NewV4().String()
-		ctx = context.WithValue(ctx, "session_id", sessionID)
-	}
-
-	return l.WithField("session_id", sessionID)
-
 }
 
 func (l Base) WithAppData(key string, value any) Log {

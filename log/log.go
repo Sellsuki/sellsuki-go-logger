@@ -1,7 +1,6 @@
 package log
 
 import (
-	"context"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
 )
 
@@ -11,7 +10,6 @@ type Log interface {
 	SetMessage(msg string) Log                     // Sets or overrides the log message.
 	SetLevel(level level.Level) Log                // Sets or overrides the log level (e.g., info, warning, error).
 	SetAlert(bool bool) Log                        // Sets or overrides the alert flag.
-	WithContextSession(ctx context.Context) Log    // Generates a session ID and associates it with the log entry.
 	WithAppData(key string, value any) Log         // Adds application-specific data.
 	WithError(err error) Log                       // Adds error information.
 	WithTracing(t Tracer) Log                      // Adds tracing information.
