@@ -1,7 +1,5 @@
 package log
 
-import "time"
-
 // HTTPRequestPayload represents the payload for an HTTP request.
 type HTTPRequestPayload struct {
 	Method    string            `json:"method"`     // The HTTP method of the request (e.g., "GET", "POST").
@@ -18,7 +16,7 @@ type HTTPRequestPayload struct {
 // HTTPResponsePayload represents the payload for an HTTP response.
 type HTTPResponsePayload struct {
 	Status    int64             `json:"status"`     // The HTTP status code of the response.
-	Duration  time.Duration     `json:"duration"`   // The duration of the request processing.
+	Duration  float64           `json:"duration"`   // The duration of the request processing in seconds.
 	Body      string            `json:"body"`       // The body of the HTTP response.
 	RequestID string            `json:"request_id"` // The request identifier associated with this response.
 	Headers   map[string]string `json:"headers"`    // HTTP headers of the response.

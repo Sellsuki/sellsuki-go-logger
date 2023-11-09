@@ -8,7 +8,6 @@ import (
 	slog "github.com/Sellsuki/sellsuki-go-logger"
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/log"
-	"time"
 )
 
 func Example_handler_http_log() {
@@ -40,7 +39,7 @@ func Example_handler_http_log() {
 	// Simulate an HTTP response
 	responsePayload := &log.HTTPResponsePayload{
 		Status:    200,
-		Duration:  2 * time.Second,
+		Duration:  2,
 		Body:      (`{"result": "success"}`),
 		RequestID: "unique-request-id",
 	}
@@ -55,6 +54,6 @@ func Example_handler_http_log() {
 
 	// Output:
 	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_http_log_test.go:36","message":"HandlerHTTP request received","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.http","data":{"http_request":{"method":"POST","handler":"GetResourceById","path":"/api/{{resource}}","remote_ip":"192.168.1.1","headers":{"Content-Type":"application/json"},"params":{"resource":"123"},"query":{"param1":"value1"},"body":"eyJrZXkiOiAidmFsdWUifQ==","request_id":"unique-request-id"}}}
-	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_http_log_test.go:48","message":"HandlerHTTP request processed successfully","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.http","data":{"http_response":{"status":200,"duration":2000000000,"body":"eyJyZXN1bHQiOiAic3VjY2VzcyJ9","request_id":"unique-request-id"}}}
+	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_http_log_test.go:48","message":"HandlerHTTP request processed successfully","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.http","data":{"http_response":{"status":200,"duration":2,"body":"eyJyZXN1bHQiOiAic3VjY2VzcyJ9","request_id":"unique-request-id"}}}
 	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_http_log_test.go:54","message":"HandlerHTTP request processing failed","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.http","data":{"error":{},"sampleApp":{"field2":"value2"}}}
 }

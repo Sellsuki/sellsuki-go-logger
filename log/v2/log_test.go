@@ -630,7 +630,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 			args: args{
 				resp: log.HTTPResponsePayload{
 					Status:    200,
-					Duration:  time.Millisecond * 100,
+					Duration:  100,
 					Body:      ("Response body content"),
 					RequestID: "123456",
 				},
@@ -640,7 +640,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 				Data: map[string]any{
 					"http_response": log.HTTPResponsePayload{
 						Status:    200,
-						Duration:  time.Millisecond * 100,
+						Duration:  100,
 						Body:      ("Response body content"),
 						RequestID: "123456",
 					},
@@ -656,7 +656,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 			args: args{
 				resp: log.HTTPResponsePayload{
 					Status:    500,
-					Duration:  time.Millisecond * 500,
+					Duration:  500,
 					RequestID: "789012",
 				},
 			},
@@ -665,7 +665,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 				Data: map[string]any{
 					"http_response": log.HTTPResponsePayload{
 						Status:    500,
-						Duration:  time.Millisecond * 500,
+						Duration:  500,
 						RequestID: "789012",
 					},
 				},
@@ -683,7 +683,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 			args: args{
 				resp: log.HTTPResponsePayload{
 					Status:   200,
-					Duration: time.Millisecond * 100,
+					Duration: 100,
 					// Body exceeds the configured MaxBodySize
 					Body:      ("This is a large body that exceeds the maximum allowed size"),
 					RequestID: "123456",
@@ -697,7 +697,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 				Data: map[string]any{
 					"http_response": log.HTTPResponsePayload{
 						Status:    200,
-						Duration:  time.Millisecond * 100,
+						Duration:  100,
 						Body:      ("This is a "),
 						RequestID: "123456",
 					},
@@ -839,7 +839,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 func TestBase_WithKafkaResult(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	duration := time.Millisecond * 500 // Sample duration
+	duration := 500.0 // Sample duration
 
 	type fields struct {
 		logger    *zap.Logger
