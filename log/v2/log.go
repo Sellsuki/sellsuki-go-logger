@@ -67,6 +67,10 @@ func (l Logger) WithAppData(key string, value any) log.Log {
 }
 
 func (l Logger) WithError(err error) log.Log {
+	if err == nil {
+		return &l
+	}
+
 	return l.WithField("error", err)
 }
 
