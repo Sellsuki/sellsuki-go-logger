@@ -10,6 +10,7 @@ import (
 )
 
 func Example_event_log() {
+	// Do this once in bootstrap file AKA main.go
 	slog.Init(config.Config{
 		AppName:       "lord_of_the_rim",
 		Version:       "the_rim_of_lovers",

@@ -1,6 +1,7 @@
-package log
+package v2
 
 import (
+	"github.com/Sellsuki/sellsuki-go-logger/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"time"
@@ -12,11 +13,11 @@ type TestTracer struct {
 	SpanIDVal  string
 }
 
-func (t *TestTracer) TraceID() Stringer {
+func (t *TestTracer) TraceID() log.Stringer {
 	return TestStringer(t.TraceIDVal)
 }
 
-func (t *TestTracer) SpanID() Stringer {
+func (t *TestTracer) SpanID() log.Stringer {
 	return TestStringer(t.SpanIDVal)
 }
 

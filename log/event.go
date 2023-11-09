@@ -15,10 +15,6 @@ type EventPayload struct {
 	DataJSON    []byte      `json:"data"`         // DataJSON is a JSON string containing event data.
 }
 
-type Event struct {
-	Base
-}
-
 const (
 	EventActionCreate EventAction = "create"
 	EventActionUpdate EventAction = "update"

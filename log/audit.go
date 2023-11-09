@@ -12,10 +12,6 @@ type AuditPayload struct {
 	EntityOwnerID   string      `json:"entity_owner_id"`   // the unique identifier of the entity owner, e.g., "i_love_to_sell_1234", "USR_1234567890".
 }
 
-type Audit struct {
-	Base
-}
-
 const (
 	AuditActionCreate AuditAction = "create"
 	AuditActionUpdate AuditAction = "update"

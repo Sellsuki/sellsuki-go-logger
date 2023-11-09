@@ -20,6 +20,6 @@ type Log interface {
 	WithKafkaResult(result KafkaResultPayload) Log // Adds a Kafka result payload.
 }
 
-type zapLogger interface {
+type ZapLogger interface {
 	Log(level zapcore.Level, msg string, fields ...zapcore.Field)
 }

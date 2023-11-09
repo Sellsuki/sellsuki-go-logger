@@ -11,6 +11,7 @@ import (
 )
 
 func Example_audit_log() {
+	// Do this once in bootstrap file AKA main.go
 	slog.Init(config.Config{
 		AppName:       "harry_squatter",
 		Version:       "the_boy_who_lifted",

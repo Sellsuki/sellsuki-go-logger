@@ -15,5 +15,5 @@ type KafkaMessagePayload struct {
 
 type KafkaResultPayload struct {
 	Duration  time.Duration `json:"duration"`            // Duration is the time it took to produce the message.
-	Committed bool          `json:"committed,omitempty"` // Committed is true if the message was successfully commited.
+	Committed bool          `json:"committed,omitempty"` // Committed is true if the message was successfully committed.
 }

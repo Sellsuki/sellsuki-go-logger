@@ -1,11 +1,11 @@
-package log
+package v2
 
 import (
 	"fmt"
 	"runtime"
 )
 
-func captureStackTrace(skip int) string {
+func CaptureStackTrace(skip int) string {
 	pc := make([]uintptr, 10) // Adjust the size as needed
 	n := runtime.Callers(skip+1, pc)
 	frames := runtime.CallersFrames(pc[:n])

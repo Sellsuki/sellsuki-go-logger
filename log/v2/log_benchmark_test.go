@@ -1,8 +1,9 @@
-package log
+package v2
 
 import (
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
+	"github.com/Sellsuki/sellsuki-go-logger/log"
 	"go.uber.org/zap"
 	"testing"
 )
@@ -20,7 +21,7 @@ func BenchmarkWrite(b *testing.B) {
 		Version:     "v0.0.0",
 	}
 
-	// Initialize a Base object with the required parameters
+	// Initialize a Logger object with the required parameters
 	base := New(logger, c, level.Info, TypeApplication, "Benchmark message").
 		WithField("key", "value")
 
@@ -46,16 +47,16 @@ func BenchmarkAllMethods(b *testing.B) {
 	// Reset the timer and start benchmarking
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		// Chain multiple methods on the Base object
+		// Chain multiple methods on the Logger object
 		base := New(logger, c, level.Info, TypeApplication, "Benchmark message").
 			WithField("key", "value").
 			WithError(nil).
 			WithStackTrace().
 			WithAppData("app_key", "app_value").
-			WithHTTPReq(HTTPRequestPayload{}).
-			WithHTTPResp(HTTPResponsePayload{}).
-			WithKafkaMessage(KafkaMessagePayload{}).
-			WithKafkaResult(KafkaResultPayload{})
+			WithHTTPReq(log.HTTPRequestPayload{}).
+			WithHTTPResp(log.HTTPResponsePayload{}).
+			WithKafkaMessage(log.KafkaMessagePayload{}).
+			WithKafkaResult(log.KafkaResultPayload{})
 
 		// Call the Write method
 		base.Write()
@@ -76,15 +77,15 @@ func BenchmarkAllMethodsExceptStackTrace(b *testing.B) {
 	// Reset the timer and start benchmarking
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		// Chain multiple methods on the Base object
+		// Chain multiple methods on the Logger object
 		base := New(logger, c, level.Info, TypeApplication, "Benchmark message").
 			WithField("key", "value").
 			WithError(nil).
 			WithAppData("app_key", "app_value").
-			WithHTTPReq(HTTPRequestPayload{}).
-			WithHTTPResp(HTTPResponsePayload{}).
-			WithKafkaMessage(KafkaMessagePayload{}).
-			WithKafkaResult(KafkaResultPayload{})
+			WithHTTPReq(log.HTTPRequestPayload{}).
+			WithHTTPResp(log.HTTPResponsePayload{}).
+			WithKafkaMessage(log.KafkaMessagePayload{}).
+			WithKafkaResult(log.KafkaResultPayload{})
 
 		// Call the Write method
 		base.Write()

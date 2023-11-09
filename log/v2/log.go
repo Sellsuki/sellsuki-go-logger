@@ -1,8 +1,9 @@
-package log
+package v2
 
 import (
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
+	"github.com/Sellsuki/sellsuki-go-logger/log"
 	"go.uber.org/zap"
 )
 
@@ -16,8 +17,8 @@ const (
 	TypeHandlerHTTP  Type = "handler.http"
 )
 
-type Base struct {
-	logger zapLogger
+type Logger struct {
+	logger log.ZapLogger
 	config config.Config
 
 	Type      Type
@@ -28,7 +29,7 @@ type Base struct {
 	AppFields map[string]any
 }
 
-func (l Base) Write() {
+func (l Logger) Write() {
 	if len(l.AppFields) > 0 {
 		l.Data[l.config.AppName] = l.AppFields
 	}
@@ -36,7 +37,7 @@ func (l Base) Write() {
 	f := []zap.Field{
 		zap.String("app_name", l.config.AppName),
 		zap.String("version", l.config.Version),
-		zap.Int("alert", boolToInt[l.Alert]),
+		zap.Int("alert", BoolToInt[l.Alert]),
 		zap.String("log_type", string(l.Type)),
 		zap.Any("data", l.Data),
 	}
@@ -44,55 +45,55 @@ func (l Base) Write() {
 	l.logger.Log(level.ToZap(l.Level), l.Message, f...)
 }
 
-func (l Base) SetMessage(msg string) Log {
+func (l Logger) SetMessage(msg string) log.Log {
 	l.Message = msg
 	return &l
 }
 
-func (l Base) SetLevel(level level.Level) Log {
+func (l Logger) SetLevel(level level.Level) log.Log {
 	l.Level = level
 	return &l
 }
 
-func (l Base) SetAlert(bool bool) Log {
+func (l Logger) SetAlert(bool bool) log.Log {
 	l.Alert = bool
 	return &l
 }
 
-func (l Base) WithAppData(key string, value any) Log {
+func (l Logger) WithAppData(key string, value any) log.Log {
 	l.AppFields[key] = value
 
 	return &l
 }
 
-func (l Base) WithError(err error) Log {
+func (l Logger) WithError(err error) log.Log {
 	return l.WithField("error", err)
 }
 
-func (l Base) WithTracing(t Tracer) Log {
+func (l Logger) WithTracing(t log.Tracer) log.Log {
 	return l.WithField("tracing", map[string]string{
 		"trace_id": t.TraceID().String(),
 		"span_id":  t.SpanID().String(),
 	})
 }
 
-func (l Base) WithField(key string, value any) Log {
+func (l Logger) WithField(key string, value any) log.Log {
 	l.Data[key] = value
 	return &l
 }
 
-func (l Base) WithFields(fields map[string]any) Log {
+func (l Logger) WithFields(fields map[string]any) log.Log {
 	for k, v := range fields {
 		l.Data[k] = v
 	}
 	return &l
 }
 
-func (l Base) WithStackTrace() Log {
-	return l.WithField("stack_trace", captureStackTrace(2))
+func (l Logger) WithStackTrace() log.Log {
+	return l.WithField("stack_trace", CaptureStackTrace(2))
 }
 
-func (l Base) WithHTTPReq(req HTTPRequestPayload) Log {
+func (l Logger) WithHTTPReq(req log.HTTPRequestPayload) log.Log {
 	if l.config.MaxBodySize > 0 && len(req.Body) > l.config.MaxBodySize {
 		req.Body = req.Body[:l.config.MaxBodySize]
 	}
@@ -102,7 +103,7 @@ func (l Base) WithHTTPReq(req HTTPRequestPayload) Log {
 	return &l
 }
 
-func (l Base) WithHTTPResp(resp HTTPResponsePayload) Log {
+func (l Logger) WithHTTPResp(resp log.HTTPResponsePayload) log.Log {
 	if l.config.MaxBodySize > 0 && len(resp.Body) > l.config.MaxBodySize {
 		resp.Body = resp.Body[:l.config.MaxBodySize]
 	}
@@ -112,7 +113,7 @@ func (l Base) WithHTTPResp(resp HTTPResponsePayload) Log {
 	return &l
 }
 
-func (l Base) WithKafkaMessage(msg KafkaMessagePayload) Log {
+func (l Logger) WithKafkaMessage(msg log.KafkaMessagePayload) log.Log {
 	if l.config.MaxBodySize > 0 && len(msg.Payload) > l.config.MaxBodySize {
 		msg.Payload = msg.Payload[:l.config.MaxBodySize]
 	}
@@ -122,14 +123,14 @@ func (l Base) WithKafkaMessage(msg KafkaMessagePayload) Log {
 	return &l
 }
 
-func (l Base) WithKafkaResult(result KafkaResultPayload) Log {
+func (l Logger) WithKafkaResult(result log.KafkaResultPayload) log.Log {
 	l.Data["kafka_result"] = result
 
 	return &l
 }
 
-func New(logger *zap.Logger, cfg config.Config, l level.Level, t Type, msg string) *Base {
-	return &Base{
+func New(logger *zap.Logger, cfg config.Config, l level.Level, t Type, msg string) *Logger {
+	return &Logger{
 		logger:    logger,
 		config:    cfg,
 		Data:      map[string]any{},

@@ -5,6 +5,7 @@ import "time"
 // HTTPRequestPayload represents the payload for an HTTP request.
 type HTTPRequestPayload struct {
 	Method    string            `json:"method"`     // The HTTP method of the request (e.g., "GET", "POST").
+	Handler   string            `json:"handler"`    // The handler of the request (e.g., "getCat"). This is optional. for easy searching
 	Path      string            `json:"path"`       // The path of the request URL.
 	RemoteIP  string            `json:"remote_ip"`  // The remote IP address of the client.
 	Headers   map[string]string `json:"headers"`    // HTTP headers of the request.
