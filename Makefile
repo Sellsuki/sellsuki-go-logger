@@ -1,6 +1,7 @@
 unit-test:
 	go test -v ./...
 
+# exclude ./examples
 coverage-test:
 	go test -coverprofile cover.out ./...
 

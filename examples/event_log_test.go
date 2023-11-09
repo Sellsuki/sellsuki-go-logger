@@ -1,3 +1,6 @@
+//go:build example
+// +build example
+
 package examples
 
 import (
@@ -30,5 +33,5 @@ func Example_event_log() {
 		Write()
 
 	// Output:
-	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/event_log_test.go:30","message":"Event message","app_name":"lord_of_the_rim","version":"the_rim_of_lovers","alert":0,"log_type":"event","data":{"event":{"entity":"rim","reference_id":"#1","action":"create","result":"success","data":null},"lord_of_the_rim":{"app_data":"app_data_value"}}}
+	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/event_log_test.go:33","message":"Event message","app_name":"lord_of_the_rim","version":"the_rim_of_lovers","alert":0,"log_type":"event","data":{"event":{"entity":"rim","reference_id":"#1","action":"create","result":"success","data":null},"lord_of_the_rim":{"app_data":"app_data_value"}}}
 }

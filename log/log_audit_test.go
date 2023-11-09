@@ -35,5 +35,5 @@ func TestNewAudit(t *testing.T) {
 	assert.Equal(t, TypeAudit, log.Type)
 
 	// You can add more assertions for other fields as needed, such as the payload.
-	// Use WithField and other methods to add fields to the Log object and check if they are correctly set.
+	// Use withField and other methods to add fields to the Log object and check if they are correctly set.
 }

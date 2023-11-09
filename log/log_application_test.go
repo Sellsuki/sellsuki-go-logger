@@ -30,7 +30,7 @@ func TestNewDebug(t *testing.T) {
 	assert.Equal(t, level.Debug, debug.Level, "Level should be Debug")
 
 	// You can add more assertions for other fields as needed.
-	// Use WithField and other methods to add fields to the Debug object and check if they are correctly set.
+	// Use withField and other methods to add fields to the Debug object and check if they are correctly set.
 }
 
 func TestNewInfo(t *testing.T) {
@@ -55,7 +55,7 @@ func TestNewInfo(t *testing.T) {
 	assert.Equal(t, level.Info, Info.Level, "Level should be Info")
 
 	// You can add more assertions for other fields as needed.
-	// Use WithField and other methods to add fields to the Info object and check if they are correctly set.
+	// Use withField and other methods to add fields to the Info object and check if they are correctly set.
 }
 
 func TestNewWarn(t *testing.T) {
@@ -80,7 +80,7 @@ func TestNewWarn(t *testing.T) {
 	assert.Equal(t, level.Warn, Warn.Level, "Level should be Warn")
 
 	// You can add more assertions for other fields as needed.
-	// Use WithField and other methods to add fields to the Warn object and check if they are correctly set.
+	// Use withField and other methods to add fields to the Warn object and check if they are correctly set.
 }
 
 func TestNewError(t *testing.T) {
@@ -105,7 +105,7 @@ func TestNewError(t *testing.T) {
 	assert.Equal(t, level.Error, Error.Level, "Level should be Error")
 
 	// You can add more assertions for other fields as needed.
-	// Use WithField and other methods to add fields to the Error object and check if they are correctly set.
+	// Use withField and other methods to add fields to the Error object and check if they are correctly set.
 }
 
 func TestNewPanic(t *testing.T) {
@@ -130,7 +130,7 @@ func TestNewPanic(t *testing.T) {
 	assert.Equal(t, level.Panic, Panic.Level, "Level should be Panic")
 
 	// You can add more assertions for other fields as needed.
-	// Use WithField and other methods to add fields to the Panic object and check if they are correctly set.
+	// Use withField and other methods to add fields to the Panic object and check if they are correctly set.
 }
 
 func TestNewFatal(t *testing.T) {
@@ -155,5 +155,5 @@ func TestNewFatal(t *testing.T) {
 	assert.Equal(t, level.Fatal, Fatal.Level, "Level should be Fatal")
 
 	// You can add more assertions for other fields as needed.
-	// Use WithField and other methods to add fields to the Fatal object and check if they are correctly set.
+	// Use withField and other methods to add fields to the Fatal object and check if they are correctly set.
 }

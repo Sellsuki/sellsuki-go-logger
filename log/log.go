@@ -14,13 +14,13 @@ type Log interface {
 	WithAppData(key string, value any) Log         // Adds application-specific data.
 	WithError(err error) Log                       // Adds error information.
 	WithTracing(t Tracer) Log                      // Adds tracing information.
-	WithField(key string, value any) Log           // Adds a custom field.
-	WithFields(fields map[string]any) Log          // Adds multiple custom fields.
 	WithStackTrace() Log                           // Captures and adds a stack trace.
 	WithHTTPReq(req HTTPRequestPayload) Log        // Adds an HTTP request payload.
 	WithHTTPResp(resp HTTPResponsePayload) Log     // Adds an HTTP response payload.
 	WithKafkaMessage(msg KafkaMessagePayload) Log  // Adds a Kafka message payload.
 	WithKafkaResult(result KafkaResultPayload) Log // Adds a Kafka result payload.
+	withField(key string, value any) Log           // Adds a custom field. (for internal use)
+	withFields(fields map[string]any) Log          // Adds multiple custom fields. (for internal use)
 }
 
 type zapLogger interface {

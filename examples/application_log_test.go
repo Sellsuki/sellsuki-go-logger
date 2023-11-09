@@ -1,3 +1,6 @@
+//go:build example
+// +build example
+
 package examples
 
 import (
@@ -17,5 +20,5 @@ func Example_application() {
 	slog.Info("Info message").Write()
 
 	// Output:
-	//	{"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/application_log_test.go:17","message":"Info message","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"application","data":{}}
+	//	{"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/application_log_test.go:20","message":"Info message","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"application","data":{}}
 }

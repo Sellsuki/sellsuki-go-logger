@@ -428,8 +428,8 @@ func TestBase_WithField(t *testing.T) {
 			l := Base{
 				Data: tt.fields.Fields,
 			}
-			if got := l.WithField(tt.args.key, tt.args.value); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("WithField() = %v, want %v", got, tt.want)
+			if got := l.withField(tt.args.key, tt.args.value); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("withField() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -483,7 +483,7 @@ func TestBase_WithFields(t *testing.T) {
 			l := Base{
 				Data: tt.fields.Fields,
 			}
-			assert.Equal(t, tt.want, l.WithFields(tt.args.fields))
+			assert.Equal(t, tt.want, l.withFields(tt.args.fields))
 		})
 	}
 }

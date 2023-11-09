@@ -64,22 +64,22 @@ func (l Base) WithAppData(key string, value any) Log {
 }
 
 func (l Base) WithError(err error) Log {
-	return l.WithField("error", err)
+	return l.withField("error", err)
 }
 
 func (l Base) WithTracing(t Tracer) Log {
-	return l.WithField("tracing", map[string]string{
+	return l.withField("tracing", map[string]string{
 		"trace_id": t.TraceID().String(),
 		"span_id":  t.SpanID().String(),
 	})
 }
 
-func (l Base) WithField(key string, value any) Log {
+func (l Base) withField(key string, value any) Log {
 	l.Data[key] = value
 	return l
 }
 
-func (l Base) WithFields(fields map[string]any) Log {
+func (l Base) withFields(fields map[string]any) Log {
 	for k, v := range fields {
 		l.Data[k] = v
 	}
@@ -87,7 +87,7 @@ func (l Base) WithFields(fields map[string]any) Log {
 }
 
 func (l Base) WithStackTrace() Log {
-	return l.WithField("stack_trace", captureStackTrace(2))
+	return l.withField("stack_trace", captureStackTrace(2))
 }
 
 func (l Base) WithHTTPReq(req HTTPRequestPayload) Log {

@@ -32,7 +32,7 @@ const (
 func NewAudit(logger *zap.Logger, cfg config.Config, msg string, payload AuditPayload) Log {
 	l := New(logger, cfg, level.Info, TypeAudit).
 		SetMessage(msg).
-		WithField("data", payload).(Base)
+		withField("data", payload).(Base)
 
 	return Audit{
 		Base: l,

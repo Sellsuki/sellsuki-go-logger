@@ -23,7 +23,7 @@ func BenchmarkWrite(b *testing.B) {
 	// Initialize a Base object with the required parameters
 	base := New(logger, c, level.Info, TypeApplication).
 		SetMessage("Benchmark message").
-		WithField("key", "value")
+		withField("key", "value")
 
 	// Reset the timer and start benchmarking
 	b.ResetTimer()
@@ -50,7 +50,7 @@ func BenchmarkAllMethods(b *testing.B) {
 		// Chain multiple methods on the Base object
 		base := New(logger, c, level.Info, TypeApplication).
 			SetMessage("Benchmark message").
-			WithField("key", "value").
+			withField("key", "value").
 			WithError(nil).
 			WithStackTrace().
 			WithAppData("app_key", "app_value").
@@ -81,7 +81,7 @@ func BenchmarkAllMethodsExceptStackTrace(b *testing.B) {
 		// Chain multiple methods on the Base object
 		base := New(logger, c, level.Info, TypeApplication).
 			SetMessage("Benchmark message").
-			WithField("key", "value").
+			withField("key", "value").
 			WithError(nil).
 			WithAppData("app_key", "app_value").
 			WithHTTPReq(HTTPRequestPayload{}).
