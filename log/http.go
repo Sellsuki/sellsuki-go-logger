@@ -17,8 +17,9 @@ type HTTPRequestPayload struct {
 
 // HTTPResponsePayload represents the payload for an HTTP response.
 type HTTPResponsePayload struct {
-	Status    int64         `json:"status"`     // The HTTP status code of the response.
-	Duration  time.Duration `json:"duration"`   // The duration of the request processing.
-	Body      []byte        `json:"body"`       // The body of the HTTP response.
-	RequestID string        `json:"request_id"` // The request identifier associated with this response.
+	Status    int64             `json:"status"`     // The HTTP status code of the response.
+	Duration  time.Duration     `json:"duration"`   // The duration of the request processing.
+	Body      []byte            `json:"body"`       // The body of the HTTP response.
+	RequestID string            `json:"request_id"` // The request identifier associated with this response.
+	Headers   map[string]string `json:"headers"`    // HTTP headers of the response.
 }
