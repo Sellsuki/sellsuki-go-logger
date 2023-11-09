@@ -197,8 +197,8 @@ func TestBase_WithAppData(t *testing.T) {
 		Level     level.Level
 		Alert     bool
 		Message   string
-		Fields    []zap.Field
-		AppFields map[string]interface{}
+		Fields    map[string]any
+		AppFields map[string]any
 	}
 	type args struct {
 		key   string
@@ -216,7 +216,7 @@ func TestBase_WithAppData(t *testing.T) {
 				config: config.Config{
 					AppName: "app_name",
 				},
-				AppFields: map[string]interface{}{},
+				AppFields: map[string]any{},
 			},
 			args: args{
 				key:   "key",
@@ -226,7 +226,7 @@ func TestBase_WithAppData(t *testing.T) {
 				config: config.Config{
 					AppName: "app_name",
 				},
-				AppFields: map[string]interface{}{
+				AppFields: map[string]any{
 					"key": "value",
 				},
 			},
@@ -237,7 +237,7 @@ func TestBase_WithAppData(t *testing.T) {
 				config: config.Config{
 					AppName: "app_name",
 				},
-				AppFields: map[string]interface{}{
+				AppFields: map[string]any{
 					"existing_key": "existing_value",
 				},
 			},
@@ -249,7 +249,7 @@ func TestBase_WithAppData(t *testing.T) {
 				config: config.Config{
 					AppName: "app_name",
 				},
-				AppFields: map[string]interface{}{
+				AppFields: map[string]any{
 					"existing_key": "new_value",
 				},
 			},
@@ -260,7 +260,7 @@ func TestBase_WithAppData(t *testing.T) {
 				config: config.Config{
 					AppName: "app_name",
 				},
-				AppFields: map[string]interface{}{},
+				AppFields: map[string]any{},
 			},
 			args: args{
 				key:   "numeric_key",
@@ -270,7 +270,7 @@ func TestBase_WithAppData(t *testing.T) {
 				config: config.Config{
 					AppName: "app_name",
 				},
-				AppFields: map[string]interface{}{
+				AppFields: map[string]any{
 					"numeric_key": 12345,
 				},
 			},
@@ -283,7 +283,7 @@ func TestBase_WithAppData(t *testing.T) {
 				Level:     tt.fields.Level,
 				Alert:     tt.fields.Alert,
 				Message:   tt.fields.Message,
-				Fields:    tt.fields.Fields,
+				Data:      tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
 			if got := l.WithAppData(tt.args.key, tt.args.value); !reflect.DeepEqual(got, tt.want) {
@@ -302,8 +302,8 @@ func TestBase_WithError(t *testing.T) {
 		Level     level.Level
 		Alert     bool
 		Message   string
-		Fields    []zap.Field
-		AppFields map[string]interface{}
+		Fields    map[string]any
+		AppFields map[string]any
 	}
 	type args struct {
 		err error
@@ -318,13 +318,14 @@ func TestBase_WithError(t *testing.T) {
 			name: "Add an error to fields",
 			fields: fields{
 				logger: logger,
+				Fields: map[string]any{},
 			},
 			args: args{
 				err: fmt.Errorf("Sample error message"),
 			},
 			want: Base{
 				logger: logger,
-				Fields: []zap.Field{zap.Error(fmt.Errorf("Sample error message"))},
+				Data:   map[string]any{"error": fmt.Errorf("Sample error message")},
 			},
 		},
 	}
@@ -336,7 +337,7 @@ func TestBase_WithError(t *testing.T) {
 				Level:     tt.fields.Level,
 				Alert:     tt.fields.Alert,
 				Message:   tt.fields.Message,
-				Fields:    tt.fields.Fields,
+				Data:      tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
 			if got := l.WithError(tt.args.err); !reflect.DeepEqual(got, tt.want) {
@@ -348,7 +349,7 @@ func TestBase_WithError(t *testing.T) {
 
 func TestBase_WithField(t *testing.T) {
 	type fields struct {
-		Fields []zap.Field
+		Fields map[string]any
 	}
 	type args struct {
 		key   string
@@ -361,65 +362,71 @@ func TestBase_WithField(t *testing.T) {
 		want   Base
 	}{
 		{
-			name:   "Add a single string field",
-			fields: fields{},
+			name: "Add a single string field",
+			fields: fields{
+				Fields: map[string]any{},
+			},
 			args: args{
 				key:   "field_key",
 				value: "field_value",
 			},
 			want: Base{
-				Fields: []zap.Field{zap.String("field_key", "field_value")},
+				Data: map[string]any{"field_key": "field_value"},
 			},
 		},
 		{
-			name:   "Add a single integer field",
-			fields: fields{},
+			name: "Add a single integer field",
+			fields: fields{
+				Fields: map[string]any{}},
 			args: args{
 				key:   "key1",
 				value: 123,
 			},
 			want: Base{
-				Fields: []zap.Field{zap.Int("key1", 123)},
+				Data: map[string]any{"key1": 123},
 			},
 		},
 		{
-			name:   "Add a single float field",
-			fields: fields{},
+			name: "Add a single float field",
+			fields: fields{
+				Fields: map[string]any{}},
 			args: args{
 				key:   "key1",
 				value: 3.14,
 			},
 			want: Base{
-				Fields: []zap.Field{zap.Float64("key1", 3.14)},
+				Data: map[string]any{"key1": 3.14},
 			},
 		},
 		{
-			name:   "Add a single boolean field",
-			fields: fields{},
+			name: "Add a single boolean field",
+			fields: fields{
+				Fields: map[string]any{}},
 			args: args{
 				key:   "key1",
 				value: true,
 			},
 			want: Base{
-				Fields: []zap.Field{zap.Bool("key1", true)},
+				Data: map[string]any{"key1": true},
 			},
 		},
 		{
-			name:   "Add a single nil field",
-			fields: fields{},
+			name: "Add a single nil field",
+			fields: fields{
+				Fields: map[string]any{}},
 			args: args{
 				key:   "key1",
 				value: nil,
 			},
 			want: Base{
-				Fields: []zap.Field{zap.Any("key1", nil)},
+				Data: map[string]any{"key1": nil},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := Base{
-				Fields: tt.fields.Fields,
+				Data: tt.fields.Fields,
 			}
 			if got := l.WithField(tt.args.key, tt.args.value); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("WithField() = %v, want %v", got, tt.want)
@@ -430,10 +437,10 @@ func TestBase_WithField(t *testing.T) {
 
 func TestBase_WithFields(t *testing.T) {
 	type fields struct {
-		Fields []zap.Field
+		Fields map[string]any
 	}
 	type args struct {
-		fields map[string]interface{}
+		fields map[string]any
 	}
 	tests := []struct {
 		name   string
@@ -442,36 +449,39 @@ func TestBase_WithFields(t *testing.T) {
 		want   Base
 	}{
 		{
-			name:   "Add multiple fields",
-			fields: fields{},
+			name: "Add multiple fields",
+			fields: fields{
+				Fields: map[string]any{}},
 			args: args{
-				fields: map[string]interface{}{
+				fields: map[string]any{
 					"key1": "value1",
 					"key2": 123,
 				},
 			},
 			want: Base{
-				Fields: []zap.Field{
-					zap.String("key1", "value1"),
-					zap.Int("key2", 123),
+				Data: map[string]any{
+					"key1": "value1",
+					"key2": 123,
 				},
 			},
 		},
 		{
-			name:   "Add no fields",
-			fields: fields{},
+			name: "Add no fields",
+			fields: fields{
+				Fields: map[string]any{},
+			},
 			args: args{
-				fields: map[string]interface{}{},
+				fields: map[string]any{},
 			},
 			want: Base{
-				Fields: nil,
+				Data: map[string]any{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			l := Base{
-				Fields: tt.fields.Fields,
+				Data: tt.fields.Fields,
 			}
 			assert.Equal(t, tt.want, l.WithFields(tt.args.fields))
 		})
@@ -487,8 +497,8 @@ func TestBase_WithHTTPReq(t *testing.T) {
 		Level     level.Level
 		Alert     bool
 		Message   string
-		Fields    []zap.Field
-		AppFields map[string]interface{}
+		Fields    map[string]any
+		AppFields map[string]any
 	}
 	type args struct {
 		req HTTPRequestPayload
@@ -503,6 +513,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 			name: "Add HTTP request payload with JSON body to fields",
 			fields: fields{
 				logger: logger,
+				Fields: map[string]any{},
 			},
 			args: args{
 				req: HTTPRequestPayload{
@@ -517,8 +528,8 @@ func TestBase_WithHTTPReq(t *testing.T) {
 			},
 			want: Base{
 				logger: logger,
-				Fields: []zap.Field{
-					zap.Any("http_request", HTTPRequestPayload{
+				Data: map[string]any{
+					"http_request": HTTPRequestPayload{
 						Method: "POST",
 						Path:   "/api",
 						Headers: map[string]string{
@@ -526,7 +537,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 						},
 						Body:      []byte(`{"key": "value", "nested": {"subkey": 123}}`),
 						RequestID: "789012",
-					}),
+					},
 				},
 			},
 		},
@@ -537,6 +548,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 				config: config.Config{
 					MaxBodySize: 10,
 				},
+				Fields: map[string]any{},
 			},
 			args: args{
 				req: HTTPRequestPayload{
@@ -555,17 +567,17 @@ func TestBase_WithHTTPReq(t *testing.T) {
 				config: config.Config{
 					MaxBodySize: 10,
 				},
-				Fields: []zap.Field{
-					zap.Any("http_request", HTTPRequestPayload{
+				Data: map[string]any{
+					"http_request": HTTPRequestPayload{
 						Method: "POST",
 						Path:   "/api",
 						Headers: map[string]string{
 							"Content-Type": "application/json",
 						},
-						// Body is trimmed to the maximum allowed size
+						// Body exceeds the configured MaxBodySize
 						Body:      []byte(`{"large_bo`),
 						RequestID: "789012",
-					}),
+					},
 				},
 			},
 		},
@@ -578,7 +590,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 				Level:     tt.fields.Level,
 				Alert:     tt.fields.Alert,
 				Message:   tt.fields.Message,
-				Fields:    tt.fields.Fields,
+				Data:      tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
 
@@ -596,7 +608,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 		Level     level.Level
 		Alert     bool
 		Message   string
-		Fields    []zap.Field
+		Fields    map[string]any
 		AppFields map[string]any
 	}
 	type args struct {
@@ -612,6 +624,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 			name: "Add HTTP response payload with status, duration, and body",
 			fields: fields{
 				logger: logger,
+				Fields: map[string]any{},
 			},
 			args: args{
 				resp: HTTPResponsePayload{
@@ -623,13 +636,13 @@ func TestBase_WithHTTPResp(t *testing.T) {
 			},
 			want: Base{
 				logger: logger,
-				Fields: []zap.Field{
-					zap.Any("http_response", HTTPResponsePayload{
+				Data: map[string]any{
+					"http_response": HTTPResponsePayload{
 						Status:    200,
 						Duration:  time.Millisecond * 100,
 						Body:      []byte("Response body content"),
 						RequestID: "123456",
-					}),
+					},
 				},
 			},
 		},
@@ -637,6 +650,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 			name: "Add HTTP response payload with an error message",
 			fields: fields{
 				logger: logger,
+				Fields: map[string]any{},
 			},
 			args: args{
 				resp: HTTPResponsePayload{
@@ -648,13 +662,13 @@ func TestBase_WithHTTPResp(t *testing.T) {
 			},
 			want: Base{
 				logger: logger,
-				Fields: []zap.Field{
-					zap.Any("http_response", HTTPResponsePayload{
+				Data: map[string]any{
+					"http_response": HTTPResponsePayload{
 						Status:    500,
 						Duration:  time.Millisecond * 500,
 						Error:     "Internal Server Error",
 						RequestID: "789012",
-					}),
+					},
 				},
 			},
 		},
@@ -665,6 +679,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 				config: config.Config{
 					MaxBodySize: 10,
 				},
+				Fields: map[string]any{},
 			},
 			args: args{
 				resp: HTTPResponsePayload{
@@ -680,14 +695,13 @@ func TestBase_WithHTTPResp(t *testing.T) {
 				config: config.Config{
 					MaxBodySize: 10,
 				},
-				Fields: []zap.Field{
-					zap.Any("http_response", HTTPResponsePayload{
-						Status:   200,
-						Duration: time.Millisecond * 100,
-						// Body is trimmed to the maximum allowed size
+				Data: map[string]any{
+					"http_response": HTTPResponsePayload{
+						Status:    200,
+						Duration:  time.Millisecond * 100,
 						Body:      []byte("This is a "),
 						RequestID: "123456",
-					}),
+					},
 				},
 			},
 		},
@@ -701,7 +715,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 				Level:     tt.fields.Level,
 				Alert:     tt.fields.Alert,
 				Message:   tt.fields.Message,
-				Fields:    tt.fields.Fields,
+				Data:      tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
 
@@ -720,7 +734,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 		Level     level.Level
 		Alert     bool
 		Message   string
-		Fields    []zap.Field
+		Fields    map[string]any
 		AppFields map[string]any
 	}
 	type args struct {
@@ -736,6 +750,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 			name: "Add Kafka message payload with details",
 			fields: fields{
 				logger: logger,
+				Fields: map[string]any{},
 			},
 			args: args{
 				msg: KafkaMessagePayload{
@@ -750,8 +765,8 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 			},
 			want: Base{
 				logger: logger,
-				Fields: []zap.Field{
-					zap.Any("kafka_message", KafkaMessagePayload{
+				Data: map[string]any{
+					"kafka_message": KafkaMessagePayload{
 						Topic:     "important-events",
 						Partition: 1,
 						Offset:    12345,
@@ -759,7 +774,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 						Key:       "message-key",
 						Payload:   []byte("This is a Kafka message payload."),
 						Timestamp: now,
-					}),
+					},
 				},
 			},
 		},
@@ -770,6 +785,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 					MaxBodySize: 20,
 				},
 				logger: logger,
+				Fields: map[string]any{},
 			},
 			args: args{
 				msg: KafkaMessagePayload{
@@ -788,8 +804,8 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 					MaxBodySize: 20,
 				},
 				logger: logger,
-				Fields: []zap.Field{
-					zap.Any("kafka_message", KafkaMessagePayload{
+				Data: map[string]any{
+					"kafka_message": KafkaMessagePayload{
 						Topic:     "important-events",
 						Partition: 1,
 						Offset:    12345,
@@ -798,7 +814,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 						// Ensure that the payload is trimmed to the maximum allowed size
 						Payload:   []byte("This is a very large"),
 						Timestamp: now,
-					}),
+					},
 				},
 			},
 			// Add more test cases for different Kafka message payloads
@@ -812,7 +828,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 				Level:     tt.fields.Level,
 				Alert:     tt.fields.Alert,
 				Message:   tt.fields.Message,
-				Fields:    tt.fields.Fields,
+				Data:      tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
 
@@ -833,7 +849,7 @@ func TestBase_WithKafkaResult(t *testing.T) {
 		Level     level.Level
 		Alert     bool
 		Message   string
-		Fields    []zap.Field
+		Fields    map[string]any
 		AppFields map[string]any
 	}
 
@@ -851,6 +867,7 @@ func TestBase_WithKafkaResult(t *testing.T) {
 			name: "Add Kafka result payload with success",
 			fields: fields{
 				logger: logger,
+				Fields: map[string]any{},
 			},
 			args: args{
 				result: KafkaResultPayload{
@@ -859,10 +876,10 @@ func TestBase_WithKafkaResult(t *testing.T) {
 			},
 			want: Base{
 				logger: logger,
-				Fields: []zap.Field{
-					zap.Any("kafka_result", KafkaResultPayload{
+				Data: map[string]any{
+					"kafka_result": KafkaResultPayload{
 						Duration: duration,
-					}),
+					},
 				},
 			},
 		},
@@ -870,6 +887,7 @@ func TestBase_WithKafkaResult(t *testing.T) {
 			name: "Add Kafka result payload with error message",
 			fields: fields{
 				logger: logger,
+				Fields: map[string]any{},
 			},
 			args: args{
 				result: KafkaResultPayload{
@@ -879,11 +897,11 @@ func TestBase_WithKafkaResult(t *testing.T) {
 			},
 			want: Base{
 				logger: logger,
-				Fields: []zap.Field{
-					zap.Any("kafka_result", KafkaResultPayload{
+				Data: map[string]any{
+					"kafka_result": KafkaResultPayload{
 						Duration: duration,
 						Error:    errMessage,
-					}),
+					},
 				},
 			},
 		},
@@ -897,7 +915,7 @@ func TestBase_WithKafkaResult(t *testing.T) {
 				Level:     tt.fields.Level,
 				Alert:     tt.fields.Alert,
 				Message:   tt.fields.Message,
-				Fields:    tt.fields.Fields,
+				Data:      tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
 
@@ -922,8 +940,8 @@ func TestBase_WithStackTrace(t *testing.T) {
 		Level:   level.Info, // Set the level as needed.
 		Alert:   true,       // Set the Alert as needed.
 		Message: "Test message",
-		Fields:  []zap.Field{},
-		AppFields: map[string]interface{}{
+		Data:    map[string]any{},
+		AppFields: map[string]any{
 			"key1": "value1",
 			"key2": "value2",
 		},
@@ -931,22 +949,15 @@ func TestBase_WithStackTrace(t *testing.T) {
 
 	// Call the WithStackTrace method
 	baseWithStackTrace := base.WithStackTrace().(Base)
+	//expectedStackTrace := ``
 
-	// Assert that the "stack_trace" field has been added to the Fields slice
-	// We use zap.Field to construct the expected field to compare
-	expectedStackField := zap.Field{Key: "stack_trace", Type: zapcore.StringType, String: ""} // Customize the expected field based on your needs
+	stack, ok := baseWithStackTrace.Data["stack_trace"]
 
-	found := false
-	for _, field := range baseWithStackTrace.Fields {
-		if field.Key == expectedStackField.Key && field.Type == expectedStackField.Type {
-			found = true
-			break
-		}
+	if !ok {
+		t.Errorf("WithStackTrace() = %v", stack)
 	}
 
-	if !found {
-		t.Error("Expected 'stack_trace' field not found in Fields")
-	}
+	//assert.Equal(t, expectedStackTrace, stack)
 }
 
 func TestBase_WithTracing(t *testing.T) {
@@ -957,7 +968,7 @@ func TestBase_WithTracing(t *testing.T) {
 		Level     level.Level
 		Alert     bool
 		Message   string
-		Fields    []zap.Field
+		Fields    map[string]any
 		AppFields map[string]any
 	}
 
@@ -975,6 +986,7 @@ func TestBase_WithTracing(t *testing.T) {
 			name: "Add tracing information",
 			fields: fields{
 				logger: logger, // Assuming you have a logger instance available.
+				Fields: map[string]any{},
 			},
 			args: args{
 				t: &TestTracer{
@@ -984,10 +996,11 @@ func TestBase_WithTracing(t *testing.T) {
 			},
 			want: Base{
 				logger: logger,
-				Fields: []zap.Field{zap.Any("tracing", map[string]string{
-					"trace_id": "12345",
-					"span_id":  "67890",
-				}),
+				Data: map[string]any{
+					"tracing": map[string]string{
+						"trace_id": "12345",
+						"span_id":  "67890",
+					},
 				},
 			},
 		},
@@ -1002,7 +1015,7 @@ func TestBase_WithTracing(t *testing.T) {
 				Level:     tt.fields.Level,
 				Alert:     tt.fields.Alert,
 				Message:   tt.fields.Message,
-				Fields:    tt.fields.Fields,
+				Data:      tt.fields.Fields,
 				AppFields: tt.fields.AppFields,
 			}
 
@@ -1040,8 +1053,8 @@ func TestBase_Write(t *testing.T) {
 		Level:   level.Info, // Set the level as needed.
 		Alert:   true,       // Set the Alert as needed.
 		Message: "Test message",
-		Fields:  []zap.Field{},
-		AppFields: map[string]interface{}{
+		Data:    map[string]any{},
+		AppFields: map[string]any{
 			"key1": "value1",
 			"key2": "value2",
 		},
@@ -1058,7 +1071,7 @@ func TestBase_Write(t *testing.T) {
 	logOutput := buf.String()
 
 	// Assert on the expected log message or other criteria based on the expected behavior
-	expectedLog := "{\"level\":\"info\",\"ts\":\"fixed\",\"msg\":\"Test message\",\"alert\":1,\"app_name\":{\"key1\":\"value1\",\"key2\":\"value2\"}}\n"
+	expectedLog := "{\"level\":\"info\",\"ts\":\"fixed\",\"msg\":\"Test message\",\"app_name\":\"app_name\",\"version\":\"1.0.0\",\"alert\":1,\"log_type\":\"\",\"data\":{\"app_name\":{\"key1\":\"value1\",\"key2\":\"value2\"}}}\n"
 
 	assert.Equal(t, expectedLog, logOutput)
 }

@@ -5,9 +5,10 @@ import (
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
 	"github.com/Sellsuki/sellsuki-go-logger/log"
+	"github.com/Sellsuki/sellsuki-go-logger/once"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"sync"
+	"time"
 )
 
 type SukiLogger struct {
@@ -15,7 +16,7 @@ type SukiLogger struct {
 	zapInstance *zap.Logger
 }
 
-var sukiLoggerOnce sync.Once
+var sukiLoggerOnce once.Once
 
 var sukiLogger *SukiLogger
 
@@ -31,22 +32,48 @@ func Init(c ...config.Config) {
 			cfg = c[0]
 		}
 
-		zCfg := zap.NewProductionConfig()
-		zCfg.EncoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
-		zCfg.EncoderConfig.MessageKey = "message"
-		zCfg.EncoderConfig.TimeKey = "timestamp"
-		zCfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-		zCfg.Level = zap.NewAtomicLevelAt(level.ToZap(cfg.LogLevel))
+		zCfg := zap.Config{
+			Level:       zap.NewAtomicLevelAt(level.ToZap(cfg.LogLevel)),
+			Development: false,
+			Sampling: &zap.SamplingConfig{
+				Initial:    100,
+				Thereafter: 100,
+			},
+			Encoding: "json",
+			EncoderConfig: zapcore.EncoderConfig{
+				TimeKey:        "timestamp",
+				LevelKey:       "level",
+				NameKey:        "logger",
+				CallerKey:      "caller",
+				FunctionKey:    zapcore.OmitKey,
+				MessageKey:     "message",
+				StacktraceKey:  "stacktrace",
+				LineEnding:     zapcore.DefaultLineEnding,
+				EncodeLevel:    zapcore.LowercaseLevelEncoder,
+				EncodeTime:     zapcore.ISO8601TimeEncoder,
+				EncodeDuration: zapcore.SecondsDurationEncoder,
+				EncodeCaller:   zapcore.ShortCallerEncoder,
+			},
+			OutputPaths:      []string{"stdout"},
+			ErrorOutputPaths: []string{"stdout"},
+		}
 
 		if cfg.Readable {
 			zCfg.Encoding = "console"
 			zCfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		}
 
+		if cfg.HardCodedTime != "" {
+			zCfg.EncoderConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+				enc.AppendString(cfg.HardCodedTime)
+			}
+		}
+
 		logger, err := zCfg.Build(zap.AddCallerSkip(1))
 		if err != nil {
 			panic(fmt.Errorf("failed to init logger: %w", err))
 		}
+
 		defer logger.Sync()
 
 		sukiLogger = &SukiLogger{zapInstance: logger, config: cfg}
@@ -54,49 +81,33 @@ func Init(c ...config.Config) {
 }
 
 func Debug(msg string) log.Log {
-	Init()
-
 	return log.NewDebug(sukiLogger.zapInstance, sukiLogger.config, msg)
 }
 
 func Info(msg string) log.Log {
-	Init()
-
 	return log.NewInfo(sukiLogger.zapInstance, sukiLogger.config, msg)
 }
 
 func Warn(msg string) log.Log {
-	Init()
-
 	return log.NewWarn(sukiLogger.zapInstance, sukiLogger.config, msg)
 }
 
 func Error(msg string) log.Log {
-	Init()
-
 	return log.NewError(sukiLogger.zapInstance, sukiLogger.config, msg)
 }
 
 func Panic(msg string) log.Log {
-	Init()
-
 	return log.NewPanic(sukiLogger.zapInstance, sukiLogger.config, msg)
 }
 
 func Fatal(msg string) log.Log {
-	Init()
-
 	return log.NewFatal(sukiLogger.zapInstance, sukiLogger.config, msg)
 }
 
 func Event(msg string, payload log.EventPayload) log.Log {
-	Init()
-
 	return log.NewEvent(sukiLogger.zapInstance, sukiLogger.config, msg, payload)
 }
 
 func Audit(msg string, payload log.AuditPayload) log.Log {
-	Init()
-
 	return log.NewAudit(sukiLogger.zapInstance, sukiLogger.config, msg, payload)
 }

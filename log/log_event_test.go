@@ -22,7 +22,7 @@ func TestNewEvent(t *testing.T) {
 		ReferenceID: "ODR_1234567890",
 		Action:      EventActionCreate,
 		Result:      EventResultSuccess,
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"key1": "value1",
 			"key2": "value2",
 		},

@@ -23,8 +23,6 @@ func BenchmarkDebug(b *testing.B) {
 	}
 }
 
-// Similar benchmark functions can be defined for other exposed functions (Info, Warn, Error, etc.)
-
 // Example BenchmarkInfo function:
 func BenchmarkInfo(b *testing.B) {
 	// Create a sample config and initialize the zap Logger
@@ -37,5 +35,3 @@ func BenchmarkInfo(b *testing.B) {
 		Info("Benchmark info message")
 	}
 }
-
-// Continue with similar functions for Warn, Error, Panic, Fatal, Event, and Audit
