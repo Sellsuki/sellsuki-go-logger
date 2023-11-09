@@ -83,33 +83,52 @@ func Init(c ...config.Config) {
 }
 
 func Debug(msg string) log.Log {
-	return log.NewDebug(sukiLogger.zapInstance, sukiLogger.config, msg)
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Debug, log.TypeApplication, msg)
 }
 
 func Info(msg string) log.Log {
-	return log.NewInfo(sukiLogger.zapInstance, sukiLogger.config, msg)
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, log.TypeApplication, msg)
 }
 
 func Warn(msg string) log.Log {
-	return log.NewWarn(sukiLogger.zapInstance, sukiLogger.config, msg)
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Warn, log.TypeApplication, msg)
 }
 
 func Error(msg string) log.Log {
-	return log.NewError(sukiLogger.zapInstance, sukiLogger.config, msg)
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Error, log.TypeApplication, msg)
 }
 
 func Panic(msg string) log.Log {
-	return log.NewPanic(sukiLogger.zapInstance, sukiLogger.config, msg)
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Panic, log.TypeApplication, msg)
 }
 
 func Fatal(msg string) log.Log {
-	return log.NewFatal(sukiLogger.zapInstance, sukiLogger.config, msg)
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Fatal, log.TypeApplication, msg)
 }
 
 func Event(msg string, payload log.EventPayload) log.Log {
-	return log.NewEvent(sukiLogger.zapInstance, sukiLogger.config, msg, payload)
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, log.TypeEvent, msg).
+		WithField("event", payload)
 }
 
 func Audit(msg string, payload log.AuditPayload) log.Log {
-	return log.NewAudit(sukiLogger.zapInstance, sukiLogger.config, msg, payload)
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, log.TypeAudit, msg).
+		WithField("audit", payload)
+}
+
+func Kafka(msg string, kMsg *log.KafkaMessagePayload, payload *log.KafkaResultPayload) log.Log {
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, log.TypeHandlerKafka, msg).
+		WithFields(map[string]interface{}{
+			"kafka_message": kMsg,
+			"kafka_result":  payload,
+		})
+}
+
+func HTTP(msg string, req *log.HTTPRequestPayload, res *log.HTTPResponsePayload) log.Log {
+	return log.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, log.TypeHandlerHTTP, msg).
+		WithField("http", map[string]interface{}{
+			"http_request":  req,
+			"http_response": res,
+		})
+
 }

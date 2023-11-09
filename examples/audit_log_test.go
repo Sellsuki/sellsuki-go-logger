@@ -34,5 +34,5 @@ func Example_audit_log() {
 		Write()
 
 	// Output:
-	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/audit_log_test.go:31","message":"Audit message","app_name":"harry_squatter","version":"the_boy_who_lifted","alert":0,"log_type":"audit","data":{"data":{"actor_type":"hawkward.wizard","actor_id":"magic_user_42","action":"create","entity":"hawkward.spell.banned","entity_refs":["dead_rift","bicep_curse"],"entity_owner_type":"fantasy_realm.system","entity_owner_id":"realm_keeper_5678"},"error":{},"harry_squatter":{"app_data":"app_data_value"}}}
+	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/audit_log_test.go:31","message":"Audit message","app_name":"harry_squatter","version":"the_boy_who_lifted","alert":0,"log_type":"audit","data":{"audit":{"actor_type":"hawkward.wizard","actor_id":"magic_user_42","action":"create","entity":"hawkward.spell.banned","entity_refs":["dead_rift","bicep_curse"],"entity_owner_type":"fantasy_realm.system","entity_owner_id":"realm_keeper_5678"},"error":{},"harry_squatter":{"app_data":"app_data_value"}}}
 }

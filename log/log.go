@@ -5,7 +5,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// Log is a flexible logging interface with methods for customizing log entries.
 type Log interface {
 	Write()                                        // Logs the current entry to the output.
 	SetMessage(msg string) Log                     // Sets or overrides the log message.
@@ -19,18 +18,8 @@ type Log interface {
 	WithHTTPResp(resp HTTPResponsePayload) Log     // Adds an HTTP response payload.
 	WithKafkaMessage(msg KafkaMessagePayload) Log  // Adds a Kafka message payload.
 	WithKafkaResult(result KafkaResultPayload) Log // Adds a Kafka result payload.
-	withField(key string, value any) Log           // Adds a custom field. (for internal use)
-	withFields(fields map[string]any) Log          // Adds multiple custom fields. (for internal use)
 }
 
 type zapLogger interface {
 	Log(level zapcore.Level, msg string, fields ...zapcore.Field)
-}
-
-type Payload struct {
-	Level   level.Level `json:"level"`
-	Alert   bool        `json:"alert"`
-	AppName string      `json:"app_name"`
-	Version string      `json:"version"`
-	LogType string      `json:"log_type"`
 }

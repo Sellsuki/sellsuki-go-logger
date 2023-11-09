@@ -1,11 +1,5 @@
 package log
 
-import (
-	"github.com/Sellsuki/sellsuki-go-logger/config"
-	"github.com/Sellsuki/sellsuki-go-logger/level"
-	"go.uber.org/zap"
-)
-
 type AuditAction string
 
 type AuditPayload struct {
@@ -28,13 +22,3 @@ const (
 	AuditActionDelete AuditAction = "delete"
 	AuditActionAccess AuditAction = "access"
 )
-
-func NewAudit(logger *zap.Logger, cfg config.Config, msg string, payload AuditPayload) Log {
-	l := New(logger, cfg, level.Info, TypeAudit).
-		SetMessage(msg).
-		withField("data", payload).(Base)
-
-	return Audit{
-		Base: l,
-	}
-}

@@ -9,9 +9,11 @@ import (
 type Type string
 
 const (
-	TypeAudit       Type = "audit"
-	TypeEvent       Type = "event"
-	TypeApplication Type = "application"
+	TypeAudit        Type = "audit"
+	TypeEvent        Type = "event"
+	TypeApplication  Type = "application"
+	TypeHandlerKafka Type = "handler.kafka"
+	TypeHandlerHTTP  Type = "handler.http"
 )
 
 type Base struct {
@@ -44,50 +46,50 @@ func (l Base) Write() {
 
 func (l Base) SetMessage(msg string) Log {
 	l.Message = msg
-	return l
+	return &l
 }
 
 func (l Base) SetLevel(level level.Level) Log {
 	l.Level = level
-	return l
+	return &l
 }
 
 func (l Base) SetAlert(bool bool) Log {
 	l.Alert = bool
-	return l
+	return &l
 }
 
 func (l Base) WithAppData(key string, value any) Log {
 	l.AppFields[key] = value
 
-	return l
+	return &l
 }
 
 func (l Base) WithError(err error) Log {
-	return l.withField("error", err)
+	return l.WithField("error", err)
 }
 
 func (l Base) WithTracing(t Tracer) Log {
-	return l.withField("tracing", map[string]string{
+	return l.WithField("tracing", map[string]string{
 		"trace_id": t.TraceID().String(),
 		"span_id":  t.SpanID().String(),
 	})
 }
 
-func (l Base) withField(key string, value any) Log {
+func (l Base) WithField(key string, value any) Log {
 	l.Data[key] = value
-	return l
+	return &l
 }
 
-func (l Base) withFields(fields map[string]any) Log {
+func (l Base) WithFields(fields map[string]any) Log {
 	for k, v := range fields {
 		l.Data[k] = v
 	}
-	return l
+	return &l
 }
 
 func (l Base) WithStackTrace() Log {
-	return l.withField("stack_trace", captureStackTrace(2))
+	return l.WithField("stack_trace", captureStackTrace(2))
 }
 
 func (l Base) WithHTTPReq(req HTTPRequestPayload) Log {
@@ -97,7 +99,7 @@ func (l Base) WithHTTPReq(req HTTPRequestPayload) Log {
 
 	l.Data["http_request"] = req
 
-	return l
+	return &l
 }
 
 func (l Base) WithHTTPResp(resp HTTPResponsePayload) Log {
@@ -107,7 +109,7 @@ func (l Base) WithHTTPResp(resp HTTPResponsePayload) Log {
 
 	l.Data["http_response"] = resp
 
-	return l
+	return &l
 }
 
 func (l Base) WithKafkaMessage(msg KafkaMessagePayload) Log {
@@ -117,22 +119,23 @@ func (l Base) WithKafkaMessage(msg KafkaMessagePayload) Log {
 
 	l.Data["kafka_message"] = msg
 
-	return l
+	return &l
 }
 
 func (l Base) WithKafkaResult(result KafkaResultPayload) Log {
 	l.Data["kafka_result"] = result
 
-	return l
+	return &l
 }
 
-func New(logger *zap.Logger, cfg config.Config, l level.Level, t Type) Base {
-	return Base{
+func New(logger *zap.Logger, cfg config.Config, l level.Level, t Type, msg string) *Base {
+	return &Base{
 		logger:    logger,
 		config:    cfg,
 		Data:      map[string]any{},
 		AppFields: map[string]any{},
 		Level:     l,
 		Type:      t,
+		Message:   msg,
 	}
 }

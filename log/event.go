@@ -1,12 +1,5 @@
 package log
 
-import (
-	"encoding/json"
-	"github.com/Sellsuki/sellsuki-go-logger/config"
-	"github.com/Sellsuki/sellsuki-go-logger/level"
-	"go.uber.org/zap"
-)
-
 type EventAction string
 type EventResult string
 
@@ -34,17 +27,3 @@ const (
 	EventResultSuccess    EventResult = "success"
 	EventResultCompensate EventResult = "compensate"
 )
-
-func NewEvent(logger *zap.Logger, cfg config.Config, msg string, payload EventPayload) Log {
-	l := New(logger, cfg, level.Info, TypeEvent).
-		SetMessage(msg).
-		withField("event", payload).(Base)
-
-	if payload.Data != nil {
-		payload.DataJSON, _ = json.Marshal(payload.Data)
-	}
-
-	return Event{
-		Base: l,
-	}
-}

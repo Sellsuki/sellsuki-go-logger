@@ -14,6 +14,6 @@ type KafkaMessagePayload struct {
 }
 
 type KafkaResultPayload struct {
-	Duration time.Duration `json:"duration"` // Duration is the time it took to produce the message.
-	Error    string        `json:"error"`    // Error is any error message or information related to the response.
+	Duration  time.Duration `json:"duration"`            // Duration is the time it took to produce the message.
+	Committed bool          `json:"committed,omitempty"` // Committed is true if the message was successfully commited.
 }

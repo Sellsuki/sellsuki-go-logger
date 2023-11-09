@@ -32,7 +32,7 @@ func TestBase_SetAlert(t *testing.T) {
 		name:   "Set alert to true",
 		fields: fields{},
 		args:   args{bool: true},
-		want: Base{
+		want: &Base{
 			config:  config.Config{},
 			Level:   level.Level(0),
 			Alert:   true,
@@ -45,7 +45,7 @@ func TestBase_SetAlert(t *testing.T) {
 				Alert: true, // Initialize with Alert set to true
 			},
 			args: args{bool: false},
-			want: Base{
+			want: &Base{
 				config:  config.Config{},
 				Level:   level.Level(0),
 				Alert:   false,
@@ -88,7 +88,7 @@ func TestBase_SetLevel(t *testing.T) {
 			name:   "Set level to Info",
 			fields: fields{},
 			args:   args{level: level.Info},
-			want: Base{
+			want: &Base{
 				config:  config.Config{},
 				Level:   level.Info,
 				Alert:   false,
@@ -101,7 +101,7 @@ func TestBase_SetLevel(t *testing.T) {
 				Level: level.Info, // Initialize with Level set to Info
 			},
 			args: args{level: level.Error},
-			want: Base{
+			want: &Base{
 				config:  config.Config{},
 				Level:   level.Error,
 				Alert:   false,
@@ -144,7 +144,7 @@ func TestBase_SetMessage(t *testing.T) {
 			name:   "Set an empty message",
 			fields: fields{},
 			args:   args{msg: ""},
-			want: Base{
+			want: &Base{
 				config:  config.Config{},
 				Level:   level.Level(0),
 				Alert:   false,
@@ -156,7 +156,7 @@ func TestBase_SetMessage(t *testing.T) {
 		//	name:   "Set a long message",
 		//	fields: fields{},
 		//	args:   args{msg: "This is a very long message that exceeds the character limit for messages and needs to be truncated."},
-		//	want: Base{
+		//	want: &Base{
 		//		config: config.Config{
 		//		},
 		//		Level:   level.Level(0),
@@ -168,7 +168,7 @@ func TestBase_SetMessage(t *testing.T) {
 			name:   "Set a message with special characters",
 			fields: fields{},
 			args:   args{msg: "Hello, !@#$%^&*()_+{}:\"<>? World"},
-			want: Base{
+			want: &Base{
 				config:  config.Config{},
 				Level:   level.Level(0),
 				Alert:   false,
@@ -222,7 +222,7 @@ func TestBase_WithAppData(t *testing.T) {
 				key:   "key",
 				value: "value",
 			},
-			want: Base{
+			want: &Base{
 				config: config.Config{
 					AppName: "app_name",
 				},
@@ -245,7 +245,7 @@ func TestBase_WithAppData(t *testing.T) {
 				key:   "existing_key",
 				value: "new_value",
 			},
-			want: Base{
+			want: &Base{
 				config: config.Config{
 					AppName: "app_name",
 				},
@@ -266,7 +266,7 @@ func TestBase_WithAppData(t *testing.T) {
 				key:   "numeric_key",
 				value: 12345,
 			},
-			want: Base{
+			want: &Base{
 				config: config.Config{
 					AppName: "app_name",
 				},
@@ -312,7 +312,7 @@ func TestBase_WithError(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Base
+		want   *Base
 	}{
 		{
 			name: "Add an error to fields",
@@ -323,7 +323,7 @@ func TestBase_WithError(t *testing.T) {
 			args: args{
 				err: fmt.Errorf("Sample error message"),
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				Data:   map[string]any{"error": fmt.Errorf("Sample error message")},
 			},
@@ -359,7 +359,7 @@ func TestBase_WithField(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Base
+		want   *Base
 	}{
 		{
 			name: "Add a single string field",
@@ -370,7 +370,7 @@ func TestBase_WithField(t *testing.T) {
 				key:   "field_key",
 				value: "field_value",
 			},
-			want: Base{
+			want: &Base{
 				Data: map[string]any{"field_key": "field_value"},
 			},
 		},
@@ -382,7 +382,7 @@ func TestBase_WithField(t *testing.T) {
 				key:   "key1",
 				value: 123,
 			},
-			want: Base{
+			want: &Base{
 				Data: map[string]any{"key1": 123},
 			},
 		},
@@ -394,7 +394,7 @@ func TestBase_WithField(t *testing.T) {
 				key:   "key1",
 				value: 3.14,
 			},
-			want: Base{
+			want: &Base{
 				Data: map[string]any{"key1": 3.14},
 			},
 		},
@@ -406,7 +406,7 @@ func TestBase_WithField(t *testing.T) {
 				key:   "key1",
 				value: true,
 			},
-			want: Base{
+			want: &Base{
 				Data: map[string]any{"key1": true},
 			},
 		},
@@ -418,7 +418,7 @@ func TestBase_WithField(t *testing.T) {
 				key:   "key1",
 				value: nil,
 			},
-			want: Base{
+			want: &Base{
 				Data: map[string]any{"key1": nil},
 			},
 		},
@@ -428,8 +428,8 @@ func TestBase_WithField(t *testing.T) {
 			l := Base{
 				Data: tt.fields.Fields,
 			}
-			if got := l.withField(tt.args.key, tt.args.value); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("withField() = %v, want %v", got, tt.want)
+			if got := l.WithField(tt.args.key, tt.args.value); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("WithField() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -446,7 +446,7 @@ func TestBase_WithFields(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Base
+		want   *Base
 	}{
 		{
 			name: "Add multiple fields",
@@ -458,7 +458,7 @@ func TestBase_WithFields(t *testing.T) {
 					"key2": 123,
 				},
 			},
-			want: Base{
+			want: &Base{
 				Data: map[string]any{
 					"key1": "value1",
 					"key2": 123,
@@ -473,7 +473,7 @@ func TestBase_WithFields(t *testing.T) {
 			args: args{
 				fields: map[string]any{},
 			},
-			want: Base{
+			want: &Base{
 				Data: map[string]any{},
 			},
 		},
@@ -483,7 +483,7 @@ func TestBase_WithFields(t *testing.T) {
 			l := Base{
 				Data: tt.fields.Fields,
 			}
-			assert.Equal(t, tt.want, l.withFields(tt.args.fields))
+			assert.Equal(t, tt.want, l.WithFields(tt.args.fields))
 		})
 	}
 }
@@ -507,7 +507,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Base
+		want   *Base
 	}{
 		{
 			name: "Add HTTP request payload with JSON body to fields",
@@ -526,7 +526,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 					RequestID: "789012",
 				},
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				Data: map[string]any{
 					"http_request": HTTPRequestPayload{
@@ -562,7 +562,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 					RequestID: "789012",
 				},
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				config: config.Config{
 					MaxBodySize: 10,
@@ -618,7 +618,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Base
+		want   *Base
 	}{
 		{
 			name: "Add HTTP response payload with status, duration, and body",
@@ -634,7 +634,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 					RequestID: "123456",
 				},
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				Data: map[string]any{
 					"http_response": HTTPResponsePayload{
@@ -656,17 +656,15 @@ func TestBase_WithHTTPResp(t *testing.T) {
 				resp: HTTPResponsePayload{
 					Status:    500,
 					Duration:  time.Millisecond * 500,
-					Error:     "Internal Server Error",
 					RequestID: "789012",
 				},
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				Data: map[string]any{
 					"http_response": HTTPResponsePayload{
 						Status:    500,
 						Duration:  time.Millisecond * 500,
-						Error:     "Internal Server Error",
 						RequestID: "789012",
 					},
 				},
@@ -690,7 +688,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 					RequestID: "123456",
 				},
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				config: config.Config{
 					MaxBodySize: 10,
@@ -744,7 +742,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Base
+		want   *Base
 	}{
 		{
 			name: "Add Kafka message payload with details",
@@ -763,7 +761,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 					Timestamp: now,
 				},
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				Data: map[string]any{
 					"kafka_message": KafkaMessagePayload{
@@ -799,7 +797,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 					Timestamp: now,
 				},
 			},
-			want: Base{
+			want: &Base{
 				config: config.Config{
 					MaxBodySize: 20,
 				},
@@ -841,7 +839,6 @@ func TestBase_WithKafkaResult(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
 	duration := time.Millisecond * 500 // Sample duration
-	errMessage := "Kafka error message"
 
 	type fields struct {
 		logger    *zap.Logger
@@ -861,7 +858,7 @@ func TestBase_WithKafkaResult(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Base
+		want   *Base
 	}{
 		{
 			name: "Add Kafka result payload with success",
@@ -874,7 +871,7 @@ func TestBase_WithKafkaResult(t *testing.T) {
 					Duration: duration,
 				},
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				Data: map[string]any{
 					"kafka_result": KafkaResultPayload{
@@ -892,15 +889,13 @@ func TestBase_WithKafkaResult(t *testing.T) {
 			args: args{
 				result: KafkaResultPayload{
 					Duration: duration,
-					Error:    errMessage,
 				},
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				Data: map[string]any{
 					"kafka_result": KafkaResultPayload{
 						Duration: duration,
-						Error:    errMessage,
 					},
 				},
 			},
@@ -948,10 +943,10 @@ func TestBase_WithStackTrace(t *testing.T) {
 	}
 
 	// Call the WithStackTrace method
-	baseWithStackTrace := base.WithStackTrace().(Base)
+	baseWithStackTrace := base.WithStackTrace()
 	//expectedStackTrace := ``
 
-	stack, ok := baseWithStackTrace.Data["stack_trace"]
+	stack, ok := baseWithStackTrace.(*Base).Data["stack_trace"]
 
 	if !ok {
 		t.Errorf("WithStackTrace() = %v", stack)
@@ -980,7 +975,7 @@ func TestBase_WithTracing(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   Base
+		want   *Base
 	}{
 		{
 			name: "Add tracing information",
@@ -994,7 +989,7 @@ func TestBase_WithTracing(t *testing.T) {
 					SpanIDVal:  "67890",
 				},
 			},
-			want: Base{
+			want: &Base{
 				logger: logger,
 				Data: map[string]any{
 					"tracing": map[string]string{
@@ -1087,12 +1082,12 @@ func TestBase_New(t *testing.T) {
 
 	// Call the New function to create a Base object
 	lv := level.Info // Set the desired level
-	base := New(logger, c, lv, TypeApplication)
+	base := New(logger, c, lv, TypeApplication, "abc")
 
 	// Assert on the expected values in the created Base object
 	assert.Equal(t, logger, base.logger)
 	assert.Equal(t, c, base.config)
 	assert.Equal(t, lv, base.Level)
 	assert.Equal(t, false, base.Alert)
-	assert.Equal(t, "", base.Message)
+	assert.Equal(t, "abc", base.Message)
 }

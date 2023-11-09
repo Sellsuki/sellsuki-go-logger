@@ -19,6 +19,5 @@ type HTTPResponsePayload struct {
 	Status    int64         `json:"status"`     // The HTTP status code of the response.
 	Duration  time.Duration `json:"duration"`   // The duration of the request processing.
 	Body      []byte        `json:"body"`       // The body of the HTTP response.
-	Error     string        `json:"error"`      // Any error message or information related to the response.
 	RequestID string        `json:"request_id"` // The request identifier associated with this response.
 }
