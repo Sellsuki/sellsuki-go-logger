@@ -4,6 +4,7 @@
 package examples
 
 import (
+	"errors"
 	slog "github.com/Sellsuki/sellsuki-go-logger"
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 )
@@ -21,7 +22,8 @@ func Example_application_log() {
 	slog.Info("Info message").Write()
 
 	// Output:
-	//	{"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/application_log_test.go:20","message":"Info message","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"application","data":{}}
+	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/application_log_test.go:22","message":"Info message","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"application","data":{}}
+
 }
 
 func Example_application_with_data() {
@@ -42,6 +44,6 @@ func Example_application_with_data() {
 		Write()
 
 	// Output:
-	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/application_log_with_field_test.go:26","message":"Info message","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"application","data":{"error":{},"sampleApp":{"field2":"value2"}}}
+	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/application_log_test.go:44","message":"Info message","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"application","data":{"error":{},"sampleApp":{"field2":"value2"}}}
 
 }
