@@ -12,7 +12,7 @@ type EventPayload struct {
 	Action      EventAction `json:"action"`       // Action represents the action being performed, such as EventActionCreate, EventActionUpdate, or EventActionDelete.
 	Result      EventResult `json:"result"`       // Result represents the result of the action, such as EventResultSuccess or EventResultFailure.
 	Data        any         `json:"-"`            // Data is a JSON string containing event data.
-	DataJSON    []byte      `json:"data"`         // DataJSON is a JSON string containing event data.
+	DataJSON    string      `json:"data"`         // DataJSON is a JSON string containing event data.
 }
 
 const (

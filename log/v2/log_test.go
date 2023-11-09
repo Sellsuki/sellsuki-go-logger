@@ -523,7 +523,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 					Headers: map[string]string{
 						"Content-Type": "application/json",
 					},
-					Body:      []byte(`{"key": "value", "nested": {"subkey": 123}}`),
+					Body:      (`{"key": "value", "nested": {"subkey": 123}}`),
 					RequestID: "789012",
 				},
 			},
@@ -536,7 +536,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 						Headers: map[string]string{
 							"Content-Type": "application/json",
 						},
-						Body:      []byte(`{"key": "value", "nested": {"subkey": 123}}`),
+						Body:      (`{"key": "value", "nested": {"subkey": 123}}`),
 						RequestID: "789012",
 					},
 				},
@@ -559,7 +559,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 						"Content-Type": "application/json",
 					},
 					// Body exceeds the configured MaxBodySize
-					Body:      []byte(`{"large_body": "This is a large body that exceeds the maximum allowed size"}`),
+					Body:      (`{"large_body": "This is a large body that exceeds the maximum allowed size"}`),
 					RequestID: "789012",
 				},
 			},
@@ -576,7 +576,7 @@ func TestBase_WithHTTPReq(t *testing.T) {
 							"Content-Type": "application/json",
 						},
 						// Body exceeds the configured MaxBodySize
-						Body:      []byte(`{"large_bo`),
+						Body:      (`{"large_bo`),
 						RequestID: "789012",
 					},
 				},
@@ -631,7 +631,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 				resp: log.HTTPResponsePayload{
 					Status:    200,
 					Duration:  time.Millisecond * 100,
-					Body:      []byte("Response body content"),
+					Body:      ("Response body content"),
 					RequestID: "123456",
 				},
 			},
@@ -641,7 +641,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 					"http_response": log.HTTPResponsePayload{
 						Status:    200,
 						Duration:  time.Millisecond * 100,
-						Body:      []byte("Response body content"),
+						Body:      ("Response body content"),
 						RequestID: "123456",
 					},
 				},
@@ -685,7 +685,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 					Status:   200,
 					Duration: time.Millisecond * 100,
 					// Body exceeds the configured MaxBodySize
-					Body:      []byte("This is a large body that exceeds the maximum allowed size"),
+					Body:      ("This is a large body that exceeds the maximum allowed size"),
 					RequestID: "123456",
 				},
 			},
@@ -698,7 +698,7 @@ func TestBase_WithHTTPResp(t *testing.T) {
 					"http_response": log.HTTPResponsePayload{
 						Status:    200,
 						Duration:  time.Millisecond * 100,
-						Body:      []byte("This is a "),
+						Body:      ("This is a "),
 						RequestID: "123456",
 					},
 				},
@@ -758,7 +758,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 					Offset:    12345,
 					Headers:   map[string]string{"key1": "value1", "key2": "value2"},
 					Key:       "message-key",
-					Payload:   []byte("This is a Kafka message payload."),
+					Payload:   ("This is a Kafka message payload."),
 					Timestamp: now,
 				},
 			},
@@ -771,7 +771,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 						Offset:    12345,
 						Headers:   map[string]string{"key1": "value1", "key2": "value2"},
 						Key:       "message-key",
-						Payload:   []byte("This is a Kafka message payload."),
+						Payload:   ("This is a Kafka message payload."),
 						Timestamp: now,
 					},
 				},
@@ -794,7 +794,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 					Headers:   map[string]string{"key1": "value1", "key2": "value2"},
 					Key:       "message-key",
 					// Create a large payload exceeding the maximum allowed size
-					Payload:   []byte("This is a very large Kafka message payload exceeding the maximum allowed size."),
+					Payload:   ("This is a very large Kafka message payload exceeding the maximum allowed size."),
 					Timestamp: now,
 				},
 			},
@@ -811,7 +811,7 @@ func TestBase_WithKafkaMessage(t *testing.T) {
 						Headers:   map[string]string{"key1": "value1", "key2": "value2"},
 						Key:       "message-key",
 						// Ensure that the payload is trimmed to the maximum allowed size
-						Payload:   []byte("This is a very large"),
+						Payload:   ("This is a very large"),
 						Timestamp: now,
 					},
 				},

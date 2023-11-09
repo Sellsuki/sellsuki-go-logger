@@ -29,7 +29,7 @@ func Example_handler_http_log() {
 		Headers:   map[string]string{"Content-Type": "application/json"},
 		Params:    map[string]string{"resource": "123"},
 		Query:     map[string]string{"param1": "value1"},
-		Body:      []byte(`{"key": "value"}`),
+		Body:      (`{"key": "value"}`),
 		RequestID: "unique-request-id",
 	}
 
@@ -41,7 +41,7 @@ func Example_handler_http_log() {
 	responsePayload := &log.HTTPResponsePayload{
 		Status:    200,
 		Duration:  2 * time.Second,
-		Body:      []byte(`{"result": "success"}`),
+		Body:      (`{"result": "success"}`),
 		RequestID: "unique-request-id",
 	}
 

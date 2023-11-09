@@ -11,7 +11,7 @@ type HTTPRequestPayload struct {
 	Headers   map[string]string `json:"headers"`    // HTTP headers of the request.
 	Params    map[string]string `json:"params"`     // URL path parameters.
 	Query     map[string]string `json:"query"`      // URL query parameters.
-	Body      []byte            `json:"body"`       // The raw HTTP request body.
+	Body      string            `json:"body"`       // The raw HTTP request body.
 	RequestID string            `json:"request_id"` // A unique identifier for the request.
 }
 
@@ -19,7 +19,7 @@ type HTTPRequestPayload struct {
 type HTTPResponsePayload struct {
 	Status    int64             `json:"status"`     // The HTTP status code of the response.
 	Duration  time.Duration     `json:"duration"`   // The duration of the request processing.
-	Body      []byte            `json:"body"`       // The body of the HTTP response.
+	Body      string            `json:"body"`       // The body of the HTTP response.
 	RequestID string            `json:"request_id"` // The request identifier associated with this response.
 	Headers   map[string]string `json:"headers"`    // HTTP headers of the response.
 }

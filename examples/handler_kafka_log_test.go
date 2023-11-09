@@ -24,7 +24,7 @@ func Example_handler_kafka_log() {
 		Topic:     "topic",
 		Partition: 0,
 		Offset:    0,
-		Payload:   []byte("payload"),
+		Payload:   ("payload"),
 		Headers: map[string]string{
 			"header1": "value1",
 			"header2": "value2",

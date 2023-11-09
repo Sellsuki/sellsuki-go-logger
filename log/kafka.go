@@ -9,7 +9,7 @@ type KafkaMessagePayload struct {
 	Offset    int64             `json:"offset"`    // Offset is the offset within the partition for the message.
 	Headers   map[string]string `json:"headers"`   // Headers contain key-value pairs of metadata associated with the message.
 	Key       string            `json:"key"`       // Key is an optional key associated with the message.
-	Payload   []byte            `json:"payload"`   // Payload is the raw message data.
+	Payload   string            `json:"payload"`   // Payload is the raw message data.
 	Timestamp time.Time         `json:"timestamp"` // Timestamp is the time when the message was produced.
 }
 
