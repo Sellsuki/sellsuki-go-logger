@@ -87,7 +87,7 @@ func (l Base) WithFields(fields map[string]any) Log {
 }
 
 func (l Base) WithStackTrace() Log {
-	return l.WithField("stack_trace", captureStackTrace(1))
+	return l.WithField("stack_trace", captureStackTrace(2))
 }
 
 func (l Base) WithHTTPReq(req HTTPRequestPayload) Log {

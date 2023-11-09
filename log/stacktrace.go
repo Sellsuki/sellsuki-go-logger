@@ -7,7 +7,7 @@ import (
 
 func captureStackTrace(skip int) string {
 	pc := make([]uintptr, 10) // Adjust the size as needed
-	n := runtime.Callers(skip, pc)
+	n := runtime.Callers(skip+1, pc)
 	frames := runtime.CallersFrames(pc[:n])
 	stackTrace := ""
 	for {

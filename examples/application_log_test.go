@@ -5,7 +5,7 @@ import (
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 )
 
-func Example_info() {
+func Example_application() {
 	slog.Init(config.Config{
 		AppName:       "sampleApp",
 		Version:       "v1.0.0",

@@ -5,9 +5,9 @@ import (
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
 	"github.com/Sellsuki/sellsuki-go-logger/log"
-	"github.com/Sellsuki/sellsuki-go-logger/once"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"sync"
 	"time"
 )
 
@@ -16,10 +16,12 @@ type SukiLogger struct {
 	zapInstance *zap.Logger
 }
 
-var sukiLoggerOnce once.Once
+var sukiLoggerOnce sync.Once
 
 var sukiLogger *SukiLogger
 
+// Init initialize the logger
+// Do not run this function in parallel
 func Init(c ...config.Config) {
 	sukiLoggerOnce.Do(func() {
 		cfg := config.Config{
