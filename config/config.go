@@ -1,6 +1,6 @@
 package config
 
-import "github.com/Sellsuki/sellsuki-go-logger/level"
+import "github.com/Sellsuki/sellsuki-go-logger/v2/level"
 
 type Config struct {
 	LogLevel      level.Level

@@ -1,4 +1,4 @@
-package v2
+package zap_logger
 
 import (
 	"go.uber.org/zap"

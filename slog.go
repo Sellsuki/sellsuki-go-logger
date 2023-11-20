@@ -2,17 +2,17 @@ package slog
 
 import (
 	"fmt"
-	"github.com/Sellsuki/sellsuki-go-logger/config"
-	"github.com/Sellsuki/sellsuki-go-logger/level"
-	"github.com/Sellsuki/sellsuki-go-logger/log"
-	"github.com/Sellsuki/sellsuki-go-logger/log/v2"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/config"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/level"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/log"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/zap_logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"sync"
 	"time"
 )
 
-// SukiLogger is a basically a Singleton wrapper for slog/log/v2
+// SukiLogger is a basically a Singleton wrapper for slog/log/zap_logger
 
 type SukiLogger struct {
 	config      config.Config
@@ -86,36 +86,36 @@ func Init(c ...config.Config) {
 }
 
 func Debug(msg string) log.Log {
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Debug, v2.TypeApplication, msg)
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Debug, zap_logger.TypeApplication, msg)
 }
 
 func Info(msg string) log.Log {
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, v2.TypeApplication, msg)
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, zap_logger.TypeApplication, msg)
 }
 
 func Warn(msg string) log.Log {
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Warn, v2.TypeApplication, msg)
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Warn, zap_logger.TypeApplication, msg)
 }
 
 func Error(msg string) log.Log {
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Error, v2.TypeApplication, msg)
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Error, zap_logger.TypeApplication, msg)
 }
 
 func Panic(msg string) log.Log {
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Panic, v2.TypeApplication, msg)
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Panic, zap_logger.TypeApplication, msg)
 }
 
 func Fatal(msg string) log.Log {
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Fatal, v2.TypeApplication, msg)
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Fatal, zap_logger.TypeApplication, msg)
 }
 
 func Event(msg string, payload log.EventPayload) log.Log {
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, v2.TypeEvent, msg).
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, zap_logger.TypeEvent, msg).
 		WithField("event", payload)
 }
 
 func Audit(msg string, payload log.AuditPayload) log.Log {
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, v2.TypeAudit, msg).
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, zap_logger.TypeAudit, msg).
 		WithField("audit", payload)
 }
 
@@ -130,7 +130,7 @@ func Kafka(msg string, kMsg *log.KafkaMessagePayload, kRes *log.KafkaResultPaylo
 		payload["kafka_result"] = kRes
 	}
 
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, v2.TypeHandlerKafka, msg).
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, zap_logger.TypeHandlerKafka, msg).
 		WithFields(payload)
 }
 
@@ -145,7 +145,7 @@ func HTTP(msg string, req *log.HTTPRequestPayload, res *log.HTTPResponsePayload)
 		payload["http_response"] = res
 	}
 
-	return v2.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, v2.TypeHandlerHTTP, msg).
+	return zap_logger.New(sukiLogger.zapInstance, sukiLogger.config, level.Info, zap_logger.TypeHandlerHTTP, msg).
 		WithFields(payload)
 
 }

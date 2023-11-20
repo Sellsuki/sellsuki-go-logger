@@ -1,7 +1,7 @@
 package log
 
 import (
-	"github.com/Sellsuki/sellsuki-go-logger/level"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/level"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap/zapcore"
 )

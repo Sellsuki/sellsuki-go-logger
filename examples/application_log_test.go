@@ -5,8 +5,8 @@ package examples
 
 import (
 	"errors"
-	slog "github.com/Sellsuki/sellsuki-go-logger"
-	"github.com/Sellsuki/sellsuki-go-logger/config"
+	slog "github.com/Sellsuki/sellsuki-go-logger/v2"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/config"
 )
 
 func Example_application_log() {

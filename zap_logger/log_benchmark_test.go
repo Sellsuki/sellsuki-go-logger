@@ -1,8 +1,8 @@
-package v2
+package zap_logger
 
 import (
-	"github.com/Sellsuki/sellsuki-go-logger/config"
-	"github.com/Sellsuki/sellsuki-go-logger/level"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/config"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/level"
 	"go.uber.org/zap"
 	"testing"
 )

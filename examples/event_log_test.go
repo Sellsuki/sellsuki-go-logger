@@ -4,9 +4,9 @@
 package examples
 
 import (
-	slog "github.com/Sellsuki/sellsuki-go-logger"
-	"github.com/Sellsuki/sellsuki-go-logger/config"
-	"github.com/Sellsuki/sellsuki-go-logger/log"
+	slog "github.com/Sellsuki/sellsuki-go-logger/v2"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/config"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/log"
 )
 
 func Example_event_log() {

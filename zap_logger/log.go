@@ -1,9 +1,9 @@
-package v2
+package zap_logger
 
 import (
-	"github.com/Sellsuki/sellsuki-go-logger/config"
-	"github.com/Sellsuki/sellsuki-go-logger/level"
-	"github.com/Sellsuki/sellsuki-go-logger/log"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/config"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/level"
+	"github.com/Sellsuki/sellsuki-go-logger/v2/log"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
