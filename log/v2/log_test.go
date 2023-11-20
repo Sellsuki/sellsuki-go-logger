@@ -7,6 +7,7 @@ import (
 	"github.com/Sellsuki/sellsuki-go-logger/level"
 	"github.com/Sellsuki/sellsuki-go-logger/log"
 	"github.com/stretchr/testify/assert"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"reflect"
@@ -552,7 +553,7 @@ func TestBase_WithTracing(t *testing.T) {
 	}
 
 	type args struct {
-		t log.SpanContext
+		t trace.SpanContext
 	}
 
 	tests := []struct {
@@ -568,10 +569,11 @@ func TestBase_WithTracing(t *testing.T) {
 				Fields: map[string]any{},
 			},
 			args: args{
-				t: &TestSpanContext{
-					TraceIDVal: [16]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16},
-					SpanIDVal:  [8]byte{1, 2, 3, 4, 5, 6, 7, 8},
-				},
+				t: trace.NewSpanContext(trace.SpanContextConfig{
+					TraceID: [16]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+						11, 12, 13, 14, 15, 16},
+					SpanID: [8]byte{1, 2, 3, 4, 5, 6, 7, 8},
+				}),
 			},
 			want: &Logger{
 				logger: logger,

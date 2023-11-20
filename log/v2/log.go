@@ -1,10 +1,10 @@
 package v2
 
 import (
-	"encoding/hex"
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
 	"github.com/Sellsuki/sellsuki-go-logger/log"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -75,12 +75,10 @@ func (l Logger) WithError(err error) log.Log {
 	return l.WithField("error", err)
 }
 
-func (l Logger) WithTracing(sc log.SpanContext) log.Log {
-	t := sc.TraceID()
-	s := sc.SpanID()
+func (l Logger) WithTracing(sc trace.SpanContext) log.Log {
 	return l.WithField("tracing", map[string]string{
-		"trace_id": hex.EncodeToString(t[:]),
-		"span_id":  hex.EncodeToString(s[:]),
+		"trace_id": sc.TraceID().String(),
+		"span_id":  sc.SpanID().String(),
 	})
 }
 
