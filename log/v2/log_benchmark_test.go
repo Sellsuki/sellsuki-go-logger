@@ -3,7 +3,6 @@ package v2
 import (
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
-	"github.com/Sellsuki/sellsuki-go-logger/log"
 	"go.uber.org/zap"
 	"testing"
 )
@@ -52,11 +51,7 @@ func BenchmarkAllMethods(b *testing.B) {
 			WithField("key", "value").
 			WithError(nil).
 			WithStackTrace().
-			WithAppData("app_key", "app_value").
-			WithHTTPReq(log.HTTPRequestPayload{}).
-			WithHTTPResp(log.HTTPResponsePayload{}).
-			WithKafkaMessage(log.KafkaMessagePayload{}).
-			WithKafkaResult(log.KafkaResultPayload{})
+			WithAppData("app_key", "app_value")
 
 		// Call the Write method
 		base.Write()
@@ -81,11 +76,7 @@ func BenchmarkAllMethodsExceptStackTrace(b *testing.B) {
 		base := New(logger, c, level.Info, TypeApplication, "Benchmark message").
 			WithField("key", "value").
 			WithError(nil).
-			WithAppData("app_key", "app_value").
-			WithHTTPReq(log.HTTPRequestPayload{}).
-			WithHTTPResp(log.HTTPResponsePayload{}).
-			WithKafkaMessage(log.KafkaMessagePayload{}).
-			WithKafkaResult(log.KafkaResultPayload{})
+			WithAppData("app_key", "app_value")
 
 		// Call the Write method
 		base.Write()

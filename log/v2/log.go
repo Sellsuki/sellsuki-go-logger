@@ -81,11 +81,15 @@ func (l Logger) WithTracing(t log.Tracer) log.Log {
 	})
 }
 
+// WithField adds a single field to the log entry.
+// for internal use only
 func (l Logger) WithField(key string, value any) log.Log {
 	l.Data[key] = value
 	return &l
 }
 
+// WithFields adds multiple fields to the log entry.
+// for internal use only
 func (l Logger) WithFields(fields map[string]any) log.Log {
 	for k, v := range fields {
 		l.Data[k] = v
@@ -95,42 +99,6 @@ func (l Logger) WithFields(fields map[string]any) log.Log {
 
 func (l Logger) WithStackTrace() log.Log {
 	return l.WithField("stack_trace", CaptureStackTrace(2))
-}
-
-func (l Logger) WithHTTPReq(req log.HTTPRequestPayload) log.Log {
-	if l.config.MaxBodySize > 0 && len(req.Body) > l.config.MaxBodySize {
-		req.Body = req.Body[:l.config.MaxBodySize]
-	}
-
-	l.Data["http_request"] = req
-
-	return &l
-}
-
-func (l Logger) WithHTTPResp(resp log.HTTPResponsePayload) log.Log {
-	if l.config.MaxBodySize > 0 && len(resp.Body) > l.config.MaxBodySize {
-		resp.Body = resp.Body[:l.config.MaxBodySize]
-	}
-
-	l.Data["http_response"] = resp
-
-	return &l
-}
-
-func (l Logger) WithKafkaMessage(msg log.KafkaMessagePayload) log.Log {
-	if l.config.MaxBodySize > 0 && len(msg.Payload) > l.config.MaxBodySize {
-		msg.Payload = msg.Payload[:l.config.MaxBodySize]
-	}
-
-	l.Data["kafka_message"] = msg
-
-	return &l
-}
-
-func (l Logger) WithKafkaResult(result log.KafkaResultPayload) log.Log {
-	l.Data["kafka_result"] = result
-
-	return &l
 }
 
 func New(logger *zap.Logger, cfg config.Config, l level.Level, t Type, msg string) *Logger {
