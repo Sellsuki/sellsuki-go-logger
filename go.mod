@@ -1,4 +1,4 @@
-module github.com/Sellsuki/sellsuki-go-logger
+module github.com/Sellsuki/sellsuki-go-logger/v2
 
 go 1.18
 
