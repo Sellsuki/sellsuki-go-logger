@@ -552,7 +552,7 @@ func TestBase_WithTracing(t *testing.T) {
 	}
 
 	type args struct {
-		t log.Tracer
+		t log.SpanContext
 	}
 
 	tests := []struct {
@@ -568,17 +568,17 @@ func TestBase_WithTracing(t *testing.T) {
 				Fields: map[string]any{},
 			},
 			args: args{
-				t: &TestTracer{
-					TraceIDVal: "12345",
-					SpanIDVal:  "67890",
+				t: &TestSpanContext{
+					TraceIDVal: [16]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16},
+					SpanIDVal:  [8]byte{1, 2, 3, 4, 5, 6, 7, 8},
 				},
 			},
 			want: &Logger{
 				logger: logger,
 				Data: map[string]any{
 					"tracing": map[string]string{
-						"trace_id": "12345",
-						"span_id":  "67890",
+						"trace_id": "0102030405060708090a0b0c0d0e0f10",
+						"span_id":  "0102030405060708",
 					},
 				},
 			},

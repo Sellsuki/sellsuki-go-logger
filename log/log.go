@@ -12,9 +12,8 @@ type Log interface {
 	SetAlert(bool bool) Log                // Sets or overrides the alert flag.
 	WithAppData(key string, value any) Log // Adds application-specific data.
 	WithError(err error) Log               // Adds error information.
-	WithTracing(t Tracer) Log              // Adds tracing information.
+	WithTracing(t SpanContext) Log         // Adds tracing information.
 	WithStackTrace() Log                   // Captures and adds a stack trace.
-
 }
 
 type ZapLogger interface {

@@ -1,31 +1,23 @@
 package v2
 
 import (
-	"github.com/Sellsuki/sellsuki-go-logger/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"time"
 )
 
-// Define a TestTracer struct that implements the Tracer interface for testing.
-type TestTracer struct {
-	TraceIDVal string
-	SpanIDVal  string
+// Define a TestSpanContext struct that implements the Tracer interface for testing.
+type TestSpanContext struct {
+	TraceIDVal [16]byte
+	SpanIDVal  [8]byte
 }
 
-func (t *TestTracer) TraceID() log.Stringer {
-	return TestStringer(t.TraceIDVal)
+func (t TestSpanContext) TraceID() [16]byte {
+	return t.TraceIDVal
 }
 
-func (t *TestTracer) SpanID() log.Stringer {
-	return TestStringer(t.SpanIDVal)
-}
-
-// Define a TestStringer struct that implements the Stringer interface for testing.
-type TestStringer string
-
-func (s TestStringer) String() string {
-	return string(s)
+func (t TestSpanContext) SpanID() [8]byte {
+	return t.SpanIDVal
 }
 
 type MockLogger struct {

@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"encoding/hex"
 	"github.com/Sellsuki/sellsuki-go-logger/config"
 	"github.com/Sellsuki/sellsuki-go-logger/level"
 	"github.com/Sellsuki/sellsuki-go-logger/log"
@@ -74,10 +75,12 @@ func (l Logger) WithError(err error) log.Log {
 	return l.WithField("error", err)
 }
 
-func (l Logger) WithTracing(t log.Tracer) log.Log {
+func (l Logger) WithTracing(sc log.SpanContext) log.Log {
+	t := sc.TraceID()
+	s := sc.SpanID()
 	return l.WithField("tracing", map[string]string{
-		"trace_id": t.TraceID().String(),
-		"span_id":  t.SpanID().String(),
+		"trace_id": hex.EncodeToString(t[:]),
+		"span_id":  hex.EncodeToString(s[:]),
 	})
 }
 
