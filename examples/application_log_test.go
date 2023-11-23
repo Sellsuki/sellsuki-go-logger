@@ -44,6 +44,5 @@ func Example_application_with_data() {
 		Write()
 
 	// Output:
-	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/application_log_test.go:44","message":"Info message","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"application","data":{"error":{},"sampleApp":{"field2":"value2"}}}
-
+	//{"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/application_log_test.go:44","message":"Info message","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"application","data":{"error":"error message here","sampleApp":{"field2":"value2"}}}
 }

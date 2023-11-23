@@ -49,8 +49,7 @@ func Example_handler_kafka_log() {
 		Write()
 
 	// Output:
-	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_kafka_log_test.go:34","message":"HandlerKafka message received","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.kafka","data":{"kafka_message":{"topic":"topic","partition":0,"offset":0,"headers":{"header1":"value1","header2":"value2"},"key":"key","payload":"cGF5bG9hZA==","timestamp":"0001-01-01T00:00:00Z"}}}
-	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_kafka_log_test.go:41","message":"HandlerKafka message processed successfully","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.kafka","data":{"kafka_result":{"duration":3,"committed":true}}}
-	// {"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_kafka_log_test.go:49","message":"HandlerKafka message processed Failed","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.kafka","data":{"error":{},"kafka_result":{"duration":3},"sampleApp":{"field2":"value2"}}}
-
+	//	{"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_kafka_log_test.go:34","message":"HandlerKafka message received","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.kafka","data":{"kafka_message":{"topic":"topic","partition":0,"offset":0,"headers":{"header1":"value1","header2":"value2"},"key":"key","payload":"payload","timestamp":"0001-01-01T00:00:00Z"}}}
+	//{"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_kafka_log_test.go:41","message":"HandlerKafka message processed successfully","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.kafka","data":{"kafka_result":{"duration":3,"committed":true}}}
+	//{"level":"info","timestamp":"2023-11-09T14:48:14.803+0700","caller":"examples/handler_kafka_log_test.go:49","message":"HandlerKafka message processed Failed","app_name":"sampleApp","version":"v1.0.0","alert":0,"log_type":"handler.kafka","data":{"error":"error message here","kafka_result":{"duration":3},"sampleApp":{"field2":"value2"}}}
 }

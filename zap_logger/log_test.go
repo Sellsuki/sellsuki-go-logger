@@ -326,7 +326,7 @@ func TestBase_WithError(t *testing.T) {
 			},
 			want: &Logger{
 				logger: logger,
-				Data:   map[string]any{"error": fmt.Errorf("Sample error message")},
+				Data:   map[string]any{"error": "Sample error message"},
 			},
 		},
 		{
