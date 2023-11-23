@@ -85,7 +85,7 @@ func (l Logger) WithError(err error) log.Log {
 		return &l
 	}
 
-	return l.WithField("error", err)
+	return l.WithField("error", err.Error())
 }
 
 func (l Logger) WithTracing(sc trace.SpanContext) log.Log {
