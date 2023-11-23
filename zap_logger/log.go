@@ -1,6 +1,8 @@
 package zap_logger
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/Sellsuki/sellsuki-go-logger/v2/config"
 	"github.com/Sellsuki/sellsuki-go-logger/v2/level"
 	"github.com/Sellsuki/sellsuki-go-logger/v2/log"
@@ -63,6 +65,17 @@ func (l Logger) SetAlert(bool bool) log.Log {
 
 func (l Logger) WithAppData(key string, value any) log.Log {
 	l.AppFields[key] = value
+
+	return &l
+}
+
+func (l Logger) WithAppJsonData(key string, value any) log.Log {
+	b, err := json.Marshal(value)
+	if err != nil {
+		l.AppFields[fmt.Sprintf(`%s_json_error`, key)] = err.Error()
+	}
+
+	l.AppFields[fmt.Sprintf(`%s_json`, key)] = string(b)
 
 	return &l
 }

@@ -7,14 +7,15 @@ import (
 )
 
 type Log interface {
-	Write()                                // Logs the current entry to the output.
-	SetMessage(msg string) Log             // Sets or overrides the log message.
-	SetLevel(level level.Level) Log        // Sets or overrides the log level (e.g., info, warning, error).
-	SetAlert(bool bool) Log                // Sets or overrides the alert flag.
-	WithAppData(key string, value any) Log // Adds application-specific data.
-	WithError(err error) Log               // Adds error information.
-	WithTracing(t trace.SpanContext) Log   // Adds tracing information.
-	WithStackTrace() Log                   // Captures and adds a stack trace.
+	Write()                                    // Logs the current entry to the output.
+	SetMessage(msg string) Log                 // Sets or overrides the log message.
+	SetLevel(level level.Level) Log            // Sets or overrides the log level (e.g., info, warning, error).
+	SetAlert(bool bool) Log                    // Sets or overrides the alert flag.
+	WithAppData(key string, value any) Log     // Adds application-specific data.
+	WithError(err error) Log                   // Adds error information.
+	WithTracing(t trace.SpanContext) Log       // Adds tracing information.
+	WithStackTrace() Log                       // Captures and adds a stack trace.
+	WithAppJsonData(key string, value any) Log // Set arbitrary json data
 }
 
 type ZapLogger interface {
